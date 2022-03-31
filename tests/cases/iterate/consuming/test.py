@@ -10,5 +10,7 @@ for seed in [42, 43, 44, 45]:
         assert list(I(10, 20, 30, 40, portion=0)) == []
         assert len(list(I(10, 20, 30, 40, count=2))) == 2
         assert len(list(I(10, 20, 30, 40, portion=0.5))) == 2
-        assert list(I(I(10, weight=100), 20, I(30, weight=100), 40, portion=0.5)) == [10, 30]
-
+        assert list(I(I(10, weight=100), 20, I(30, weight=100), 40, portion=0.5)) == [
+            10,
+            30,
+        ]

@@ -1,10 +1,11 @@
 from collections.abc import Iterable, Iterator
 from abc import abstractmethod
 import random
-from nextsong.sample import sublist
+from nextsong.sample import sublist, weighted_choice
 
 
 DEFAULT_WEIGHT = 1.0
+DEFAULT_RECENT_PORTION = 0.5
 
 
 class AbstractWeightedIterable(Iterable):
@@ -40,24 +41,26 @@ class TrivialIterable(AbstractWeightedIterable):
 class ConsumingIterable(AbstractWeightedIterable):
     class __ConsumingIterator(Iterator):
         def __init__(self, items):
-            self.__stack = [iter(x) for x in reversed(items)]
+            self.stack = [iter(x) for x in reversed(items)]
 
         def __next__(self):
-            while self.__stack:
+            while self.stack:
                 try:
-                    return next(self.__stack[-1])
+                    return next(self.stack[-1])
                 except StopIteration:
-                    self.__stack.pop()
+                    self.stack.pop()
             raise StopIteration
 
     def __init__(
         self, *items, weight=DEFAULT_WEIGHT, portion=None, count=None, shuffle=False
     ):
-        self.__items = [
+        items = [
             x if isinstance(x, AbstractWeightedIterable) else TrivialIterable(x)
             for x in items
         ]
-        self.__weight = weight
+        items = [x for x in items if x.weight > 0]
+        self.__items = items
+        self.__weight = weight if self.__items else 0
         self.__shuffle = shuffle
 
         if portion is not None and count is not None:
@@ -106,5 +109,46 @@ class ConsumingIterable(AbstractWeightedIterable):
         return self.__ConsumingIterator(choices)
 
 
-# class ShuffledLoopingNode(Iterable):
-#    def __init__(self, items, *,
+class ShuffledLoopingIterable(Iterable):
+    class __ShuffledLoopingIterator(Iterator):
+        def __init__(self, items, recent_size):
+            self.fresh_items = list(items)
+            self.recent_items = []
+            self.current_iter = None
+            self.recent_size = recent_size
+            self.item_count = len(items)
+
+        def __next__(self):
+            if not self.item_count:
+                raise StopIteration
+
+            while True:
+                if self.current_iter is None:
+                    if self.fresh_items:
+                        i = weighted_choice([x.weight for x in self.fresh_items])
+                        choice = self.fresh_items.pop(i)
+                    elif self.recent_items:
+                        choice = self.recent_items.pop(0)
+                    else:
+                        raise RuntimeError("Unexpected logic error")
+                    self.recent_items.append(choice)
+                    if len(self.recent_items) > self.recent_size:
+                        self.fresh_items.append(self.recent_items.pop(0))
+                    self.current_iter = iter(choice)
+
+                try:
+                    return next(self.current_iter)
+                except StopIteration:
+                    self.current_iter = None
+
+    def __init__(self, *items, recent_portion=DEFAULT_RECENT_PORTION):
+        items = [
+            x if isinstance(x, AbstractWeightedIterable) else TrivialIterable(x)
+            for x in items
+        ]
+        items = [x for x in items if x.weight > 0]
+        self.__items = items
+        self.__recent_size = int(round(min(1.0, max(0.0, recent_portion)) * len(items)))
+
+    def __iter__(self):
+        return self.__ShuffledLoopingIterator(self.__items, self.__recent_size)

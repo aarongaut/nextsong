@@ -1,5 +1,12 @@
 import random
 
+def firstn(iterable, n):
+    values = []
+    iterator = iter(iterable)
+    for _ in range(n):
+        values.append(next(iterator))
+    return values
+
 class RandomContext:
     def __init__(self, seed=None):
         self.idle_state = random.getstate()
@@ -17,5 +24,3 @@ class RandomContext:
 
     def __exit__(self, exc_type, exc_value, traceback):
         self._swap()
-
-

@@ -1,6 +1,29 @@
 import random
 
 
+def weighted_choice(weights):
+    if any(w < 0 for w in weights):
+        raise ValueError("weights must be nonnegative")
+    if all(w == 0 for w in weights):
+        raise ValueError("at least one weight must be positive")
+    total_weight = sum(weights)
+    normed_weights = [weight / total_weight for weight in weights]
+    running_total = 0
+    cumulative_weights = []
+    for weight in normed_weights:
+        running_total += weight
+        cumulative_weights.append(running_total)
+    # Ensure the final total is 1 regardless of precision issues
+    cumulative_weights[-1] = 1
+    threshold = random.random()
+    # Choose the first item whose cumulative normalized weight exceeds
+    # the random number
+    for i, weight in enumerate(cumulative_weights):
+        if weight > threshold:
+            return i
+    raise RuntimeError("Unexpected logic error")
+
+
 def sublist(items, count, weights=None):
     """Extracts a sublist containing count entries from items
 
@@ -36,23 +59,8 @@ def sublist(items, count, weights=None):
     choices = []
 
     while candidates and len(choices) < count:
-        total_weight = sum(weight for _, _, weight in candidates)
-        normed_weights = [weight / total_weight for _, _, weight in candidates]
-        running_total = 0
-        cumulative_weights = []
-        for weight in normed_weights:
-            running_total += weight
-            cumulative_weights.append(running_total)
-        # Ensure the final total is 1 regardless of precision issues
-        cumulative_weights[-1] = 1
-        threshold = random.random()
-        # Choose the first item whose cumulative normalized weight exceeds
-        # the random number
-        for i, weight in enumerate(cumulative_weights):
-            if weight > threshold:
-                choices.append(candidates.pop(i))
-                break
-        else:
-            raise RuntimeError("Unexpected logic error")
+        weights = [weight for _, _, weight in candidates]
+        i = weighted_choice(weights)
+        choices.append(candidates.pop(i))
 
     return [item for _, item, _ in sorted(choices)]
