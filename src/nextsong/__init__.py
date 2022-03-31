@@ -1,3 +1,4 @@
 __version__ = "dev"
 
-from . import iterators
+from . import iterate
+from . import sample
