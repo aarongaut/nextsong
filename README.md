@@ -38,7 +38,7 @@ python3 -m pip install build
 Building the distribution:
 
 ```
-git clone https://gitlab.com/samflam.nextsong.git
+git clone https://gitlab.com/samflam/nextsong.git
 cd nextsong
 make
 ```
