@@ -1,4 +1,4 @@
-VERSION = $(shell dev-bin/rl python -c 'from nextsong.version import __version__ as v; print(v, end="")')
+VERSION = $(shell dev-bin/rl python -c 'from nextsong import __version__ as v; print(v, end="")')
 
 all: dist
 .PHONY: all
@@ -16,6 +16,7 @@ clean:
 	rm -rf dist
 	rm -rf src/*.egg-info
 	find src -name __pycache__ -type d -prune -exec rm -r {} ';'
+	find tests -name __pycache__ -type d -prune -exec rm -r {} ';'
 	find tests -name artifacts -type d -prune -exec rm -r {} ';'
 .PHONY: clean
 
