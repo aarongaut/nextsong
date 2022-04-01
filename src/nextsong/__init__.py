@@ -1,4 +1,5 @@
 __version__ = "dev"
 
-from . import iterate
+from . import sequence
 from . import sample
+from . import playlist

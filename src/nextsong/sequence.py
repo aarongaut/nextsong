@@ -15,7 +15,7 @@ class AbstractWeightedIterable(Iterable):
         pass
 
 
-class TrivialIterable(AbstractWeightedIterable):
+class TrivialSequence(AbstractWeightedIterable):
     class __TrivialIterator(Iterator):
         def __init__(self, item):
             self.item = item
@@ -38,8 +38,8 @@ class TrivialIterable(AbstractWeightedIterable):
         return self.__TrivialIterator(self.__item)
 
 
-class ConsumingIterable(AbstractWeightedIterable):
-    class __ConsumingIterator(Iterator):
+class FiniteSequence(AbstractWeightedIterable):
+    class __FiniteIterator(Iterator):
         def __init__(self, items):
             self.stack = [iter(x) for x in reversed(items)]
 
@@ -51,16 +51,13 @@ class ConsumingIterable(AbstractWeightedIterable):
                     self.stack.pop()
             raise StopIteration
 
-    def __init__(
-        self, *items, weight=DEFAULT_WEIGHT, portion=None, count=None, shuffle=False
-    ):
+    def __init__(self, *items, weight=None, portion=None, count=None, shuffle=False):
         items = [
-            x if isinstance(x, AbstractWeightedIterable) else TrivialIterable(x)
+            x if isinstance(x, AbstractWeightedIterable) else TrivialSequence(x)
             for x in items
         ]
         items = [x for x in items if x.weight > 0]
         self.__items = items
-        self.__weight = weight if self.__items else 0
         self.__shuffle = shuffle
 
         if portion is not None and count is not None:
@@ -95,6 +92,18 @@ class ConsumingIterable(AbstractWeightedIterable):
         else:
             raise ValueError("count should be an int or list")
         self.__count = tuple(min(len(items), max(0, x)) for x in count)
+        if weight is None:
+            weight = DEFAULT_WEIGHT
+
+        # Disable this sequence from being used in a parent if it will
+        # never produce any items (prevents infinite busy looping in some
+        # degenerate cases)
+        if not self.__items:
+            weight = 0
+        if max(*self.__count) == 0:
+            weight = 0
+
+        self.__weight = weight
 
     @property
     def weight(self):
@@ -106,10 +115,36 @@ class ConsumingIterable(AbstractWeightedIterable):
         choices = sublist(self.__items, count, weights=weights)
         if self.__shuffle:
             random.shuffle(choices)
-        return self.__ConsumingIterator(choices)
+        return self.__FiniteIterator(choices)
 
 
-class ShuffledLoopingIterable(Iterable):
+class OrderedLoopingSequence(Iterable):
+    class __OrderedLoopingIterator(Iterator):
+        def __init__(self, sequence):
+            self.sequence = sequence
+            self.iterator = None
+
+        def __next__(self):
+            if self.sequence.weight == 0:
+                raise StopIteration
+            while True:
+                if self.iterator is None:
+                    self.iterator = iter(self.sequence)
+                try:
+                    return next(self.iterator)
+                except StopIteration:
+                    self.iterator = None
+
+    def __init__(self, *items, portion=None, count=None):
+        self.__sequence = FiniteSequence(
+            *items, portion=portion, count=count, shuffle=False
+        )
+
+    def __iter__(self):
+        return self.__OrderedLoopingIterator(self.__sequence)
+
+
+class ShuffledLoopingSequence(Iterable):
     class __ShuffledLoopingIterator(Iterator):
         def __init__(self, items, recent_size):
             self.fresh_items = list(items)
@@ -141,12 +176,14 @@ class ShuffledLoopingIterable(Iterable):
                 except StopIteration:
                     self.current_iter = None
 
-    def __init__(self, *items, recent_portion=DEFAULT_RECENT_PORTION):
+    def __init__(self, *items, recent_portion=None):
         items = [
-            x if isinstance(x, AbstractWeightedIterable) else TrivialIterable(x)
+            x if isinstance(x, AbstractWeightedIterable) else TrivialSequence(x)
             for x in items
         ]
         items = [x for x in items if x.weight > 0]
+        if recent_portion is None:
+            recent_portion = DEFAULT_RECENT_PORTION
         self.__items = items
         self.__recent_size = int(round(min(1.0, max(0.0, recent_portion)) * len(items)))
 

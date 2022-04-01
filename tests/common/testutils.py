@@ -1,11 +1,22 @@
+from pathlib import Path
 import random
+
 
 def firstn(iterable, n):
     values = []
     iterator = iter(iterable)
-    for _ in range(n):
-        values.append(next(iterator))
+    try:
+        for _ in range(n):
+            values.append(next(iterator))
+    except StopIteration:
+        pass
     return values
+
+
+def pwdrel(paths):
+    cwd = Path(".").resolve()
+    return [str(Path(p).relative_to(cwd)) for p in paths]
+
 
 class RandomContext:
     def __init__(self, seed=None):
