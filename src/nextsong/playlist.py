@@ -1,5 +1,5 @@
 import nextsong.sequence
-import nextsong.config
+from nextsong.config import get as get_config
 import warnings
 from pathlib import Path
 
@@ -33,7 +33,7 @@ class Playlist:
                     )
                 processed_items.append(item.__sequence)
             elif isinstance(item, str):
-                root = Path(nextsong.config.get("media_root"))
+                root = Path(get_config("media_root"))
                 resolved_path = (root / item).resolve()
                 if resolved_path.exists():
                     paths = [resolved_path]
@@ -45,12 +45,10 @@ class Playlist:
                             f'file "{resolved_path}" not found and has no matches as a glob pattern'
                         )
 
-                if nextsong.config.get("media_exts"):
+                if get_config("media_exts"):
                     supported_paths = []
                     for path in paths:
-                        if path.suffix.lower().lstrip(".") in nextsong.config.get(
-                            "media_exts"
-                        ):
+                        if path.suffix.lower().lstrip(".") in get_config("media_exts"):
                             supported_paths.append(path)
                         else:
                             warnings.warn(
