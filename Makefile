@@ -20,9 +20,9 @@ clean:
 	find tests -name artifacts -type d -prune -exec rm -r {} ';'
 .PHONY: clean
 
-format:
+format fmt:
 	black .
-.PHONY: format
+.PHONY: format fmt
 
 test:
 	./dev-bin/rl runtests tests/cases
