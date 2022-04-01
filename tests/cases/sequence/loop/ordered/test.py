@@ -1,6 +1,6 @@
 from nextsong.sequence import FiniteSequence as S
 from nextsong.sequence import OrderedLoopingSequence as L
-from testutils import RandomContext, firstn
+from testutils import firstn
 
 assert firstn(L(1), 5) == [1] * 5
 
