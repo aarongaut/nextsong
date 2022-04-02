@@ -187,7 +187,7 @@ class Playlist:
                 tokens = val.split(" ")
                 parsed_tokens = []
                 for token in tokens:
-                    parse_type = float if token.contains(".") else int
+                    parse_type = float if '.' in token else int
                     try:
                         parsed_tokens.append(parse_type(token))
                     except ValueError:
