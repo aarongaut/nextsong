@@ -9,7 +9,7 @@
 
 # Usage
 
-See the test cases in `tests` for usage examples. For help on the command line tool, invoke
+See `tests/cases/examples` for usage examples. For help on the command line tool, invoke
 
 ```
 nextsong --help
