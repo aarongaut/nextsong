@@ -59,7 +59,14 @@ def nextsong():
         else:
             playlist = nextsong.playlist.Playlist.load_xml(get_cfg("playlist_path"))
             state = iter(playlist)
-        media = next(state)
+        try:
+            media = next(state)
+        except StopIteration:
+            media = None
         with open(get_cfg("state_path"), "wb") as f:
             pickle.dump(state, f)
-        print(media, end="")
+
+        if media is None:
+            print()
+        else:
+            print(media, end="")
