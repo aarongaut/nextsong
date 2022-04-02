@@ -4,3 +4,5 @@ __pycache__
 *.swp
 *.egg-info
 dist
+tests/cases/examples/**/nextsong.xml
+tests/cases/examples/**/state.pickle
