@@ -69,4 +69,4 @@ def nextsong():
         if media is None:
             print()
         else:
-            print(media, end="")
+            print(media)
