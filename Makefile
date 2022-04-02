@@ -28,6 +28,9 @@ test:
 	./dev-bin/rl runtests tests/cases
 .PHONY: test
 
+push: test
+	git remote | xargs -n1 git push
+
 dist: $(shell find src) LICENSE pyproject.toml README.md setup.cfg
 	rm -f dist/*
 	python3 -m build
