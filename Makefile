@@ -30,6 +30,7 @@ test:
 
 push: test
 	git remote | xargs -n1 git push
+	git remote | xargs -n1 git push --tags
 .PHONY: push
 
 dist: $(shell find src) LICENSE pyproject.toml README.md setup.cfg
