@@ -53,11 +53,12 @@ def nextsong():
         state_path=args.state,
         new_state=args.new_state,
     ):
+        # TODO: ask forgiveness, not permission
         if not get_cfg("new_state") and Path(get_cfg("state_path")).exists():
             with open(get_cfg("state_path"), "rb") as f:
                 state = pickle.load(f)
         else:
-            playlist = nextsong.playlist.Playlist.load_xml(get_cfg("playlist_path"))
+            playlist = nextsong.playlist.Playlist.load_xml()
             state = iter(playlist)
         try:
             media = next(state)
