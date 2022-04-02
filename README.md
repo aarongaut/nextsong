@@ -1,4 +1,4 @@
-`nextsong` is a library to support creating media playlists with a complex nested structure. It was developed to be used with [ezstream](https://icecast.org/ezstream/)'s playlist scripting capability.
+`nextsong` is a library and command line executable to support creating media playlists with a complex nested structure. It was developed to be used with [ezstream](https://icecast.org/ezstream/)'s playlist scripting capability.
 
 # Features
 
