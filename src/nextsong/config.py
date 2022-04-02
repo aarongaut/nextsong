@@ -3,7 +3,7 @@ import os
 default_config = {
     "priority": 0,
     "values": {
-        "media_root": ".",
+        "media_root": "./media",
         "media_exts": None,
         "playlist_path": "./nextsong.xml",
         "state_path": "./state.pickle",
