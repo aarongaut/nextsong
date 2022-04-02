@@ -120,8 +120,11 @@ class Playlist:
     def __iter__(self):
         return self.PlaylistState(iter(self.__create_sequence()))
 
-    def save_xml(self, filepath):
+    def save_xml(self, filepath=None):
         from lxml import etree
+
+        if filepath is None:
+            filepath = get_config("playlist_path")
 
         root = etree.Element("nextsong")
 
@@ -166,8 +169,11 @@ class Playlist:
         tree.write(filepath, pretty_print=True)
 
     @staticmethod
-    def load_xml(filepath):
+    def load_xml(filepath=None):
         from lxml import etree
+
+        if filepath is None:
+            filepath = get_config("playlist_path")
 
         def to_options(attributes):
             options = {}
