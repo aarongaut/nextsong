@@ -16,7 +16,7 @@ class AbstractWeightedIterable(Iterable):
 
 
 class TrivialSequence(AbstractWeightedIterable):
-    class __TrivialIterator(Iterator):
+    class _TrivialIterator(Iterator):
         def __init__(self, item):
             self.item = item
             self.consumed = False
@@ -35,11 +35,11 @@ class TrivialSequence(AbstractWeightedIterable):
         return DEFAULT_WEIGHT
 
     def __iter__(self):
-        return self.__TrivialIterator(self.__item)
+        return self._TrivialIterator(self.__item)
 
 
 class FiniteSequence(AbstractWeightedIterable):
-    class __FiniteIterator(Iterator):
+    class _FiniteIterator(Iterator):
         def __init__(self, items):
             self.stack = [iter(x) for x in reversed(items)]
 
@@ -115,11 +115,11 @@ class FiniteSequence(AbstractWeightedIterable):
         choices = sublist(self.__items, count, weights=weights)
         if self.__shuffle:
             random.shuffle(choices)
-        return self.__FiniteIterator(choices)
+        return self._FiniteIterator(choices)
 
 
 class OrderedLoopingSequence(Iterable):
-    class __OrderedLoopingIterator(Iterator):
+    class _OrderedLoopingIterator(Iterator):
         def __init__(self, sequence):
             self.sequence = sequence
             self.iterator = None
@@ -141,11 +141,11 @@ class OrderedLoopingSequence(Iterable):
         )
 
     def __iter__(self):
-        return self.__OrderedLoopingIterator(self.__sequence)
+        return self._OrderedLoopingIterator(self.__sequence)
 
 
 class ShuffledLoopingSequence(Iterable):
-    class __ShuffledLoopingIterator(Iterator):
+    class _ShuffledLoopingIterator(Iterator):
         def __init__(self, items, recent_size):
             self.fresh_items = list(items)
             self.recent_items = []
@@ -188,4 +188,4 @@ class ShuffledLoopingSequence(Iterable):
         self.__recent_size = int(round(min(1.0, max(0.0, recent_portion)) * len(items)))
 
     def __iter__(self):
-        return self.__ShuffledLoopingIterator(self.__items, self.__recent_size)
+        return self._ShuffledLoopingIterator(self.__items, self.__recent_size)
