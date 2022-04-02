@@ -1,42 +1,48 @@
 def nextsong():
     import argparse
     from nextsong.config import get as get_cfg
+    import nextsong
 
     parser = argparse.ArgumentParser(prog="nextsong")
     parser.add_argument(
+        "-V",
+        "--version",
+        action="version",
+        version=f"%(prog)s {nextsong.__version__}",
+    )
+    parser.add_argument(
         "-m",
         "--media-root",
-        help="The root directory for media files [%(default)s]",
+        help="root directory for media files [%(default)s]",
         default=get_cfg("media_root"),
     )
     parser.add_argument(
         "-e",
         "--media-ext",
         action="append",
-        help="Permitted extension for media files (can be repeated for multiple extensions) [%(default)s]",
+        help="permit file extension, repeatable [%(default)s]",
         default=get_cfg("media_exts"),
     )
     parser.add_argument(
         "-p",
         "--playlist",
-        help="Path to the playlist xml file [%(default)s]",
+        help="xml playlist filepath [%(default)s]",
         default=get_cfg("playlist_path"),
     )
     parser.add_argument(
         "-s",
         "--state",
-        help="Path to the playlist state file [%(default)s]",
+        help="playlist state filepath [%(default)s]",
         default=get_cfg("state_path"),
     )
     parser.add_argument(
         "-n",
         "--new-state",
-        help="Start the playlist over, ignoring an existing state file [%(default)s]",
+        help="start playlist over, ignoring existing state file [%(default)s]",
         default=get_cfg("new_state"),
     )
     args = parser.parse_args()
 
-    import nextsong
     import pickle
     from pathlib import Path
 
