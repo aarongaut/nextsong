@@ -6,32 +6,32 @@ def nextsong():
     parser.add_argument(
         "-m",
         "--media-root",
-        help="The root directory for media files [%(default)]",
+        help="The root directory for media files [%(default)s]",
         default=get_cfg("media_root"),
     )
     parser.add_argument(
         "-e",
         "--media-ext",
         action="append",
-        help="Permitted extension for media files (can be repeated for multiple extensions) [%(default)]",
+        help="Permitted extension for media files (can be repeated for multiple extensions) [%(default)s]",
         default=get_cfg("media_exts"),
     )
     parser.add_argument(
         "-p",
         "--playlist",
-        help="Path to the playlist xml file [%(default)]",
+        help="Path to the playlist xml file [%(default)s]",
         default=get_cfg("playlist_path"),
     )
     parser.add_argument(
         "-s",
         "--state",
-        help="Path to the playlist state file [%(default)]",
+        help="Path to the playlist state file [%(default)s]",
         default=get_cfg("state_path"),
     )
     parser.add_argument(
         "-n",
         "--new-state",
-        help="Start the playlist over, ignoring an existing state file [%(default)]",
+        help="Start the playlist over, ignoring an existing state file [%(default)s]",
         default=get_cfg("new_state"),
     )
     args = parser.parse_args()
