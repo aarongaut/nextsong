@@ -15,12 +15,12 @@ class Playlist:
     def __init__(
         self,
         *children,
-        shuffle=False,
+        shuffle=None,
         portion=None,
         count=None,
         recent_portion=None,
         weight=None,
-        loop=False,
+        loop=None,
     ):
 
         for child in children:
@@ -187,7 +187,7 @@ class Playlist:
                 tokens = val.split(" ")
                 parsed_tokens = []
                 for token in tokens:
-                    parse_type = float if '.' in token else int
+                    parse_type = float if "." in token else int
                     try:
                         parsed_tokens.append(parse_type(token))
                     except ValueError:
