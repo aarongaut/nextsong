@@ -4,7 +4,7 @@
 
 - Recursive tree-based structure, where each node is also a playlist with various options for sampling songs
 - Command-line executable that prints the next song in the playlist
-- Save and load playlists using a validated XML schema
+- Save and load playlists using a validated XML file (XSD under development)
 - Pickleable playlist state
 
 # Usage
