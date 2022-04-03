@@ -2,15 +2,15 @@ from nextsong.playlist import Playlist as p
 from testutils import rootrel, firstn
 
 assert list(p()) == []
-assert rootrel(p("1", "2", "3")) == ["1", "2", "3"]
-assert rootrel(p("*")) == ["1", "2", "3"]
-assert rootrel(p(p("*"))) == ["1", "2", "3"]
-assert rootrel(p(p("1"), "2")) == ["1", "2"]
-assert rootrel(p(p("1"), p("2"))) == ["1", "2"]
-assert rootrel(firstn(p("*", loop=True), 5)) == [
-    "1",
-    "2",
-    "3",
-    "1",
-    "2",
+assert rootrel(p("1.mp3", "2.mp3", "3.mp3")) == ["1.mp3", "2.mp3", "3.mp3"]
+assert rootrel(p("*.mp3")) == ["1.mp3", "2.mp3", "3.mp3"]
+assert rootrel(p(p("*.mp3"))) == ["1.mp3", "2.mp3", "3.mp3"]
+assert rootrel(p(p("1.mp3"), "2.mp3")) == ["1.mp3", "2.mp3"]
+assert rootrel(p(p("1.mp3"), p("2.mp3"))) == ["1.mp3", "2.mp3"]
+assert rootrel(firstn(p("*.mp3", loop=True), 5)) == [
+    "1.mp3",
+    "2.mp3",
+    "3.mp3",
+    "1.mp3",
+    "2.mp3",
 ]

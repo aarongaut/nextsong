@@ -1,8 +1,8 @@
 <nextsong>
   <meta/>
   <playlist shuffle="false" loop="false">
-    <path>1</path>
-    <path>2</path>
-    <path>3</path>
+    <path>1.mp3</path>
+    <path>2.mp3</path>
+    <path>3.mp3</path>
   </playlist>
 </nextsong>

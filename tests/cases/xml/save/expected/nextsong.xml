@@ -1,0 +1,13 @@
+<nextsong>
+  <meta/>
+  <playlist shuffle="true" recent_portion="0" loop="true">
+    <playlist portion="0.5">
+      <path>1.mp3</path>
+      <path>2.mp3</path>
+      <path>3.mp3</path>
+    </playlist>
+    <playlist count="1" weight="0.5">
+      <path>more_tracks/*</path>
+    </playlist>
+  </playlist>
+</nextsong>
