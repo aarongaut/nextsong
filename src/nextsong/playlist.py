@@ -136,12 +136,13 @@ class Playlist:
             for key, val in options.items():
                 if val is None:
                     continue
-                if val == True:
-                    attributes[key] = "true"
-                    continue
-                if val == False:
-                    attributes[key] = "false"
-                    continue
+                if isinstance(val, bool):
+                    if val == True:
+                        attributes[key] = "true"
+                        continue
+                    if val == False:
+                        attributes[key] = "false"
+                        continue
                 if isinstance(val, (int, float)):
                     attributes[key] = str(val)
                     continue
