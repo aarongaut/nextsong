@@ -1,4 +1,4 @@
-__version__ = "1.0.3.dev0"
+__version__ = "1.0.3"
 
 from . import config
 from . import playlist
