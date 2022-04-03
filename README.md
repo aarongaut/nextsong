@@ -19,7 +19,7 @@ nextsong --help
 
 Requires Python 3.7 or higher
 
-## From [PyPi](https://pypi.org/project/nextsong/)
+## From [PyPI](https://pypi.org/project/nextsong/)
 
 Install using pip:
 
