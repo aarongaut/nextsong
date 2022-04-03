@@ -1,3 +1,6 @@
+"""Functions implementing command line executables"""
+
+
 def nextsong():
     import argparse
     from nextsong.config import get as get_cfg

@@ -1,3 +1,6 @@
+"""This module defines low level random sampling routines used
+elsewhere in the package.
+"""
 import random
 
 

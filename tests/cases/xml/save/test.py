@@ -17,4 +17,3 @@ p(
     shuffle=True,
     recent_portion=0,
 ).save_xml()
-

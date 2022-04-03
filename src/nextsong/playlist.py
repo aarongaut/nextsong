@@ -1,3 +1,6 @@
+"""This module defines the Playlist class, which is the primary class
+of this package.
+"""
 import nextsong
 from nextsong.config import get as get_config
 import warnings
@@ -5,6 +8,15 @@ from pathlib import Path
 
 
 class Playlist:
+    """A class used to describe and iterate over a media playlist
+
+    This is the nextsong library's primary class. The general workflow
+    is to create a Playlist instance then iterate over it using the
+    builtin iter and next functions. A Playlist may also be saved and
+    loaded from an XML file using the save_xml method and load_xml
+    static method.
+    """
+
     class PlaylistState:
         def __init__(self, iterator):
             self.__iterator = iterator
@@ -16,12 +28,61 @@ class Playlist:
         self,
         *children,
         shuffle=None,
+        loop=None,
         portion=None,
         count=None,
         recent_portion=None,
         weight=None,
-        loop=None,
     ):
+        """Create a new Playlist instance
+
+        Positional arguments are items in the playlist. Each item should
+        be either another Playlist instance or a string. A string should
+        be an absolute path or a path relative to the globally
+        configured 'media_root'. A string may also be a glob pattern. If
+        the literal file cannot be found, it will be expanded to a list
+        of files under the pathlib glob expansion rules.
+
+        Keyword arguments
+        -----------------
+        shuffle:
+            If True, the Playlist will iterate through its children in a
+            random order.
+        loop:
+            If True, the Playlist will loop forever through its
+            children. Only the top-level Playlist can have loop=True.
+        portion:
+            A number or pair of numbers between 0 and 1. Specifies the
+            portion of items in the playlist to be used in a pass of the
+            Playlist. For example a portion of 0.2 means only 20% of
+            items in the Playlist will be used. If a pair of numbers is
+            given, a uniformly random value between the pair of numbers
+            will be used. This argument is mutually exclusive with
+            count.
+        count:
+            An integer or pair of integers. Specifies the number of
+            items in the playlist to be used in a pass of the Playlist.
+            For example a count of 2 means only 2 of items in the
+            Playlist will be used. If a pair of numbers is given, a
+            uniformly random value between the pair of numbers
+            (inclusive) will be used. This argument is mutually
+            exclusive with portion.
+        recent_portion:
+            A number between 0 and 1. This argument can only be used if
+            shuffle and loop are both True. By default, a shuffled
+            looping Playlist doesn't select items truly independently.
+            Items that were recently selected are marked as recent, and
+            only non-recent items are candidates for selection. This
+            argument specifies the maximum portion of the Playlist that
+            can be recent. For example, if recent_portion is 0.2 and the
+            Playlist has 10 items, the two most recently selected items
+            will not be randomly selected.
+        weight:
+            A non-negative number indicating the relative likelyhood of
+            this Playlist being chosen over its siblings during a random
+            sampling. A Playlist with a weight of zero is disabled and
+            will never be selected.
+        """
 
         for child in children:
             if isinstance(child, Playlist):
