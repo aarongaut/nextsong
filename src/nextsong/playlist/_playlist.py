@@ -7,7 +7,7 @@ import warnings
 
 from lxml import etree
 
-import nextsong
+import nextsong.sequence as seq
 from nextsong.config import get as get_config
 
 
@@ -33,18 +33,6 @@ class Playlist:
                 filepath = get_config("state_path")
             with open(filepath, "wb") as file:
                 return pickle.dump(self, file)
-
-        @staticmethod
-        def load(filepath=None, *, handle_not_found=True):
-            if filepath is None:
-                filepath = get_config("state_path")
-            try:
-                with open(filepath, "rb") as file:
-                    return pickle.load(file)
-            except FileNotFoundError:
-                if handle_not_found:
-                    return None
-                raise
 
     def __init__(
         self,
@@ -197,16 +185,16 @@ class Playlist:
 
         if self.options["loop"]:
             if self.options["shuffle"]:
-                return nextsong.sequence.ShuffledLoopingSequence(
+                return seq.ShuffledLoopingSequence(
                     *processed_children, recent_portion=self.options["recent_portion"]
                 )
-            return nextsong.sequence.OrderedLoopingSequence(
+            return seq.OrderedLoopingSequence(
                 *processed_children,
                 portion=self.options["portion"],
                 count=self.options["count"],
             )
 
-        return nextsong.sequence.FiniteSequence(
+        return seq.FiniteSequence(
             *processed_children,
             weight=self.options["weight"],
             portion=self.options["portion"],
@@ -319,3 +307,15 @@ class Playlist:
             elem = subelems[0]
 
         return to_node(elem)
+
+    @staticmethod
+    def load_state(filepath=None, *, handle_not_found=True):
+        if filepath is None:
+            filepath = get_config("state_path")
+        try:
+            with open(filepath, "rb") as file:
+                return pickle.load(file)
+        except FileNotFoundError:
+            if handle_not_found:
+                return None
+            raise
