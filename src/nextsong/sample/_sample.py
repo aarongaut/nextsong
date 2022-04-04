@@ -6,6 +6,19 @@ import random
 
 
 def weighted_choice(weights):
+    """Picks an index at random based on weights
+
+    This function picks a random index into the given list of weights,
+    with larger weights being proportionally more likely to be chosen.
+    For example, if the list of weights is [1, 2], the function has a
+    1/3 chance of returning 0 and a 2/3 chance of returning 1.
+
+    Arguments
+    ---------
+    weights:
+        A list of nonnegative numbers containing at least one positive
+        number.
+    """
     if any(w < 0 for w in weights):
         raise ValueError("weights must be nonnegative")
     if all(w == 0 for w in weights):
