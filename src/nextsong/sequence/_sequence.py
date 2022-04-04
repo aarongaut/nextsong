@@ -1,6 +1,13 @@
-"""This module defines various 'Sequence' classes used internally by
-the Playlist class to handle the details of how to iterate over items.
-"""
+"""Implementation of sequence subpackage"""
+
+__all__ = [
+    "AbstractWeightedIterable",
+    "TrivialSequence",
+    "FiniteSequence",
+    "OrderedLoopingSequence",
+    "ShuffledLoopingSequence",
+]
+
 from collections.abc import Iterable, Iterator
 from abc import abstractmethod
 import random

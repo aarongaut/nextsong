@@ -1,6 +1,7 @@
-"""This module defines low level random sampling routines used
-elsewhere in the package.
-"""
+"""Implementation of sample subpackage"""
+
+__all__ = ["weighted_choice", "sublist"]
+
 import random
 
 

@@ -1,6 +1,7 @@
-"""This module defines the Playlist class, which is the primary class
-of this package.
-"""
+"""Implementation of playlist subpackage"""
+
+__all__ = ["Playlist"]
+
 from pathlib import Path
 import pickle
 import warnings
