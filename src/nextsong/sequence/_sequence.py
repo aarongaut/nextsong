@@ -20,14 +20,24 @@ DEFAULT_RECENT_PORTION = 0.5
 
 
 class AbstractWeightedIterable(Iterable):
+    """Requiring Iterable methods and a 'weight' property"""
     # pylint: disable=too-few-public-methods
     @property
     @abstractmethod
     def weight(self):
-        pass
+        """Weight relative to other AbstractWeightedIterable objects
+
+        For example, weight could be the relative likelyhood of being
+        included in a random sample.
+        """
 
 
 class TrivialSequence(AbstractWeightedIterable):
+    """An iterable that yields one item one time
+
+    This sequence is used as a component in other sequences in order to
+    simplify their logic
+    """
     class _TrivialIterator(Iterator):
         # pylint: disable=too-few-public-methods
         # This is implemented as an iterator class instead of generator
@@ -54,6 +64,7 @@ class TrivialSequence(AbstractWeightedIterable):
 
 
 class FiniteSequence(AbstractWeightedIterable):
+    """A sequence that terminates after a pass through its items"""
     class _FiniteIterator(Iterator):
         # pylint: disable=too-few-public-methods
         # This is implemented as an iterator class instead of generator
@@ -135,6 +146,7 @@ class FiniteSequence(AbstractWeightedIterable):
 
 
 class OrderedLoopingSequence(AbstractWeightedIterable):
+    """A sequence that repeatedly loops through its items in order"""
     class _OrderedLoopingIterator(Iterator):
         # pylint: disable=too-few-public-methods
         # This is implemented as an iterator class instead of generator
@@ -168,6 +180,7 @@ class OrderedLoopingSequence(AbstractWeightedIterable):
 
 
 class ShuffledLoopingSequence(AbstractWeightedIterable):
+    """A sequence that repeatedly samples randomly from its items"""
     class _ShuffledLoopingIterator(Iterator):
         # pylint: disable=too-few-public-methods
         # This is implemented as an iterator class instead of generator
