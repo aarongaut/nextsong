@@ -35,6 +35,18 @@ class Playlist:
             with open(filepath, "wb") as file:
                 return pickle.dump(self, file)
 
+        @staticmethod
+        def load(filepath=None, *, handle_not_found=True):
+            if filepath is None:
+                filepath = get_config("state_path")
+            try:
+                with open(filepath, "rb") as file:
+                    return pickle.load(file)
+            except FileNotFoundError:
+                if handle_not_found:
+                    return None
+                raise
+
     def __init__(
         self,
         *children,
@@ -309,14 +321,8 @@ class Playlist:
 
         return to_node(elem)
 
-    @staticmethod
-    def load_state(filepath=None, *, handle_not_found=True):
-        if filepath is None:
-            filepath = get_config("state_path")
-        try:
-            with open(filepath, "rb") as file:
-                return pickle.load(file)
-        except FileNotFoundError:
-            if handle_not_found:
-                return None
-            raise
+    @classmethod
+    def load_state(cls, filepath=None, *, handle_not_found=True):
+        return cls.PlaylistState.load(
+            filepath=filepath, handle_not_found=handle_not_found
+        )
