@@ -4,3 +4,5 @@ from . import config
 from . import sample
 from . import sequence
 from . import playlist
+
+Playlist = playlist.Playlist
