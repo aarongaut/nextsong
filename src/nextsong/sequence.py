@@ -4,6 +4,7 @@ the Playlist class to handle the details of how to iterate over items.
 from collections.abc import Iterable, Iterator
 from abc import abstractmethod
 import random
+
 from nextsong.sample import sublist, weighted_choice
 
 
@@ -54,15 +55,8 @@ class FiniteSequence(AbstractWeightedIterable):
                     self.stack.pop()
             raise StopIteration
 
-    def __init__(self, *items, weight=None, portion=None, count=None, shuffle=False):
-        items = [
-            x if isinstance(x, AbstractWeightedIterable) else TrivialSequence(x)
-            for x in items
-        ]
-        items = [x for x in items if x.weight > 0]
-        self.__items = items
-        self.__shuffle = shuffle
-
+    @staticmethod
+    def __determine_count(item_count, portion, count):
         if portion is not None and count is not None:
             raise ValueError("portion and count are mutually exclusive")
 
@@ -73,28 +67,33 @@ class FiniteSequence(AbstractWeightedIterable):
             if isinstance(portion, (int, float)):
                 portion = (portion, portion)
             if isinstance(portion, (tuple, list)):
-                if len(portion) != 2:
-                    raise ValueError("portion should have two elements")
-                if not isinstance(portion[0], (int, float)):
-                    raise ValueError("portion should contain numbers")
-                if not isinstance(portion[1], (int, float)):
-                    raise ValueError("portion should contain numbers")
+                if len(portion) != 2 or not all(
+                    isinstance(x, (int, float)) for x in portion
+                ):
+                    raise ValueError("portion should contain two numbers")
             else:
-                raise ValueError("portion should be a number or list")
-            count = tuple(int(round(x * len(items))) for x in portion)
+                raise ValueError("portion should be a number or pair of numbers")
+            count = tuple(int(round(x * item_count)) for x in portion)
 
         if isinstance(count, int):
             count = (count, count)
         if isinstance(count, (tuple, list)):
-            if len(count) != 2:
-                raise ValueError("count should have two elements")
-            if not isinstance(count[0], int):
-                raise ValueError("count should contain ints")
-            if not isinstance(count[1], int):
-                raise ValueError("count should contain ints")
+            if len(count) != 2 or not all(isinstance(x, int) for x in count):
+                raise ValueError("count should contain two ints")
         else:
-            raise ValueError("count should be an int or list")
-        self.__count = tuple(min(len(items), max(0, x)) for x in count)
+            raise ValueError("count should be an int or pair of ints")
+        return tuple(min(item_count, max(0, x)) for x in count)
+
+    def __init__(self, *items, weight=None, portion=None, count=None, shuffle=False):
+        items = [
+            x if isinstance(x, AbstractWeightedIterable) else TrivialSequence(x)
+            for x in items
+        ]
+        items = [x for x in items if x.weight > 0]
+        self.__items = items
+        self.__shuffle = shuffle
+
+        self.__count = self.__determine_count(len(items), portion, count)
         if weight is None:
             weight = DEFAULT_WEIGHT
 

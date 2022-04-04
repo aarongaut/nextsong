@@ -1,11 +1,14 @@
 """This module defines the Playlist class, which is the primary class
 of this package.
 """
-import nextsong
-from nextsong.config import get as get_config
-import warnings
 from pathlib import Path
 import pickle
+import warnings
+
+from lxml import etree
+
+import nextsong
+from nextsong.config import get as get_config
 
 
 class Playlist:
@@ -28,16 +31,16 @@ class Playlist:
         def save(self, filepath=None):
             if filepath is None:
                 filepath = get_config("state_path")
-            with open(filepath, "wb") as f:
-                return pickle.dump(self, f)
+            with open(filepath, "wb") as file:
+                return pickle.dump(self, file)
 
         @staticmethod
         def load(filepath=None, *, handle_not_found=True):
             if filepath is None:
                 filepath = get_config("state_path")
             try:
-                with open(filepath, "rb") as f:
-                    return pickle.load(f)
+                with open(filepath, "rb") as file:
+                    return pickle.load(file)
             except FileNotFoundError:
                 if handle_not_found:
                     return None
@@ -103,9 +106,25 @@ class Playlist:
             will never be selected.
         """
 
+        self.__validate_children(children)
+        self.__children = children
+
+        options = {
+            "shuffle": shuffle,
+            "portion": portion,
+            "count": count,
+            "recent_portion": recent_portion,
+            "weight": weight,
+            "loop": loop,
+        }
+        self.__validate_options(options)
+        self.__options = options
+
+    @staticmethod
+    def __validate_children(children):
         for child in children:
             if isinstance(child, Playlist):
-                if child.__options["loop"]:
+                if child.options["loop"]:
                     raise ValueError(
                         "loop=True is only allowed for the top-level Playlist"
                     )
@@ -114,95 +133,91 @@ class Playlist:
             else:
                 raise ValueError(f"child {repr(child)} of unknown type")
 
-        self.__children = children
-
-        if loop:
-            if weight is not None:
+    @staticmethod
+    def __validate_options(options):
+        if options["loop"]:
+            if options["weight"] is not None:
                 raise ValueError("weight requires loop=False")
-            if shuffle:
-                if count is not None:
+            if options["shuffle"]:
+                if options["count"] is not None:
                     raise ValueError("count requires loop=False or shuffle=False")
-                if portion is not None:
+                if options["portion"] is not None:
                     raise ValueError("portion requires loop=False or shuffle=False")
             else:
-                if recent_portion is not None:
+                if options["recent_portion"] is not None:
                     raise ValueError("recent_portion requires shuffle=True")
         else:
-            if recent_portion is not None:
-                if shuffle:
+            if options["recent_portion"] is not None:
+                if options["shuffle"]:
                     raise ValueError("recent_portion requires loop=True")
-                else:
-                    raise ValueError(
-                        "recent_portion requires loop=True and shuffle=True"
-                    )
+                raise ValueError("recent_portion requires loop=True and shuffle=True")
 
-        self.__options = {
-            "shuffle": shuffle,
-            "portion": portion,
-            "count": count,
-            "recent_portion": recent_portion,
-            "weight": weight,
-            "loop": loop,
-        }
+    @property
+    def children(self):
+        return list(self.__children)
 
-    def __create_sequence(self):
-        processed_children = []
-        for child in self.__children:
-            if isinstance(child, Playlist):
-                processed_children.append(child.__create_sequence())
-            if isinstance(child, str):
-                root = Path(get_config("media_root"))
-                resolved_path = (root / child).resolve()
-                if resolved_path.exists():
-                    paths = [resolved_path]
-                else:
-                    paths = sorted(p.resolve() for p in root.glob(child))
-                    paths = [p for p in paths if p.exists()]
-                    if not paths:
-                        warnings.warn(
-                            f'file "{resolved_path}" not found and has no matches as a glob pattern'
-                        )
+    @property
+    def options(self):
+        return dict(self.__options)
 
-                if get_config("media_exts"):
-                    supported_paths = []
-                    for path in paths:
-                        if path.suffix.lower().lstrip(".") in get_config("media_exts"):
-                            supported_paths.append(path)
-                        else:
-                            warnings.warn(
-                                f'file "{path}" has unsupported extension and will be skipped'
-                            )
-                else:
-                    supported_paths = paths
-
-                processed_children.extend(str(p) for p in supported_paths)
-
-        if self.__options["loop"]:
-            if self.__options["shuffle"]:
-                return nextsong.sequence.ShuffledLoopingSequence(
-                    *processed_children, recent_portion=self.__options["recent_portion"]
-                )
-            else:
-                return nextsong.sequence.OrderedLoopingSequence(
-                    *processed_children,
-                    portion=self.__options["portion"],
-                    count=self.__options["count"],
-                )
+    @staticmethod
+    def __resolve_path(path):
+        root = Path(get_config("media_root"))
+        resolved_path = (root / path).resolve()
+        if resolved_path.exists():
+            resolved_paths = [resolved_path]
         else:
-            return nextsong.sequence.FiniteSequence(
+            resolved_paths = sorted(p.resolve() for p in root.glob(path))
+            resolved_paths = [p for p in resolved_paths if p.exists()]
+            if not resolved_paths:
+                warnings.warn(
+                    f'file "{resolved_path}" not found and has no matches as a glob pattern'
+                )
+
+        if get_config("media_exts"):
+            supported_paths = []
+            for resolved_path in resolved_paths:
+                if resolved_path.suffix.lower().lstrip(".") in get_config("media_exts"):
+                    supported_paths.append(resolved_path)
+                else:
+                    warnings.warn(
+                        f'file "{resolved_path}" has unsupported extension and will be skipped'
+                    )
+        else:
+            supported_paths = resolved_paths
+        return supported_paths
+
+    def create_sequence(self):
+        processed_children = []
+        for child in self.children:
+            if isinstance(child, Playlist):
+                processed_children.append(child.create_sequence())
+            if isinstance(child, str):
+                processed_children.extend(self.__resolve_path(child))
+
+        if self.options["loop"]:
+            if self.options["shuffle"]:
+                return nextsong.sequence.ShuffledLoopingSequence(
+                    *processed_children, recent_portion=self.options["recent_portion"]
+                )
+            return nextsong.sequence.OrderedLoopingSequence(
                 *processed_children,
-                weight=self.__options["weight"],
-                portion=self.__options["portion"],
-                count=self.__options["count"],
-                shuffle=self.__options["shuffle"],
+                portion=self.options["portion"],
+                count=self.options["count"],
             )
 
+        return nextsong.sequence.FiniteSequence(
+            *processed_children,
+            weight=self.options["weight"],
+            portion=self.options["portion"],
+            count=self.options["count"],
+            shuffle=self.options["shuffle"],
+        )
+
     def __iter__(self):
-        return self.PlaylistState(iter(self.__create_sequence()))
+        return self.PlaylistState(iter(self.create_sequence()))
 
     def save_xml(self, filepath=None):
-        from lxml import etree
-
         if filepath is None:
             filepath = get_config("playlist_path")
 
@@ -217,10 +232,10 @@ class Playlist:
                 if val is None:
                     continue
                 if isinstance(val, bool):
-                    if val == True:
+                    if val is True:
                         attributes[key] = "true"
                         continue
-                    if val == False:
+                    if val is False:
                         attributes[key] = "false"
                         continue
                 if isinstance(val, (int, float)):
@@ -237,11 +252,13 @@ class Playlist:
                 elem = etree.Element("path")
                 elem.text = node
                 return elem
-            elem = etree.Element("playlist", **to_attributes(node.__options))
-            for child in node.__children:
-                subelem = to_elem(child)
-                elem.append(subelem)
-            return elem
+            if isinstance(node, Playlist):
+                elem = etree.Element("playlist", **to_attributes(node.options))
+                for child in node.children:
+                    subelem = to_elem(child)
+                    elem.append(subelem)
+                return elem
+            raise ValueError(f"Unexpected Playlist item: {node}")
 
         elem = to_elem(self)
         root.append(elem)
@@ -251,8 +268,6 @@ class Playlist:
 
     @staticmethod
     def load_xml(filepath=None):
-        from lxml import etree
-
         if filepath is None:
             filepath = get_config("playlist_path")
 
@@ -285,14 +300,13 @@ class Playlist:
         def to_node(elem):
             if elem.tag.lower() == "path":
                 return elem.text
-            elif elem.tag.lower() == "playlist":
+            if elem.tag.lower() == "playlist":
                 children = [to_node(x) for x in elem]
                 children = [x for x in children if x is not None]
                 options = to_options(elem.attrib)
                 return Playlist(*children, **options)
-            else:
-                warnings.warn(f'unexpected tag "{elem.tag}"')
-                return None
+            warnings.warn(f'unexpected tag "{elem.tag}"')
+            return None
 
         tree = etree.parse(filepath)
         root = tree.getroot()

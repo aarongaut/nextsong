@@ -1,18 +1,19 @@
 """Functions implementing command line executables"""
+import argparse
+
+from nextsong.config import get as get_cfg
+from nextsong.playlist import Playlist
+import nextsong as nextsong_pkg
 
 
 def nextsong():
-    import argparse
-    from nextsong.config import get as get_cfg
-    from nextsong.playlist import Playlist
-    import nextsong
 
     parser = argparse.ArgumentParser(prog="nextsong")
     parser.add_argument(
         "-V",
         "--version",
         action="version",
-        version=f"%(prog)s {nextsong.__version__}",
+        version=f"%(prog)s {nextsong_pkg.__version__}",
     )
     parser.add_argument(
         "-m",
@@ -48,10 +49,7 @@ def nextsong():
     )
     args = parser.parse_args()
 
-    import pickle
-    from pathlib import Path
-
-    with nextsong.config.Config(
+    with nextsong_pkg.config.Config(
         media_root=args.media_root,
         media_exts=args.media_ext or None,
         playlist_path=args.playlist,
