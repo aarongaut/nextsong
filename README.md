@@ -21,7 +21,7 @@ Requires Python 3.7 or higher
 
 ## From [PyPI](https://pypi.org/project/nextsong/)
 
-Install using pip:
+Install using pip
 
 ```
 python3 -m pip install nextsong
@@ -29,13 +29,13 @@ python3 -m pip install nextsong
 
 ## From source
 
-This process may only work in a Linux environment. First install build dependencies:
+This process may only work in a Linux environment. First install build dependencies
 
 ```
 python3 -m pip install build
 ```
 
-Building the distribution:
+Building the distribution
 
 ```
 git clone https://gitlab.com/samflam/nextsong.git
@@ -51,7 +51,12 @@ make install
 
 # Testing
 
-From the top level, do:
+There are some additionally dependencies for testing
+
+- `black`: format checker
+- `pylint`: linter
+
+From the top level, do
 
 ```
 make test
