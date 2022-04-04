@@ -4,6 +4,7 @@
 def nextsong():
     import argparse
     from nextsong.config import get as get_cfg
+    from nextsong.playlist import Playlist
     import nextsong
 
     parser = argparse.ArgumentParser(prog="nextsong")
@@ -59,21 +60,17 @@ def nextsong():
     ):
         state = None
         if not get_cfg("new_state"):
-            try:
-                with open(get_cfg("state_path"), "rb") as f:
-                    state = pickle.load(f)
-            except FileNotFoundError:
-                pass
+            state = Playlist.PlaylistState.load(handle_not_found=True)
         if state is None:
-            playlist = nextsong.playlist.Playlist.load_xml()
+            playlist = Playlist.load_xml()
             state = iter(playlist)
 
         try:
             media = next(state)
         except StopIteration:
             media = None
-        with open(get_cfg("state_path"), "wb") as f:
-            pickle.dump(state, f)
+
+        state.save()
 
         if media is None:
             print()

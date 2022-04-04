@@ -5,6 +5,7 @@ import nextsong
 from nextsong.config import get as get_config
 import warnings
 from pathlib import Path
+import pickle
 
 
 class Playlist:
@@ -23,6 +24,24 @@ class Playlist:
 
         def __next__(self):
             return next(self.__iterator)
+
+        def save(self, filepath=None):
+            if filepath is None:
+                filepath = get_config("state_path")
+            with open(filepath, "wb") as f:
+                return pickle.dump(self, f)
+
+        @staticmethod
+        def load(filepath=None, *, handle_not_found=True):
+            if filepath is None:
+                filepath = get_config("state_path")
+            try:
+                with open(filepath, "rb") as f:
+                    return pickle.load(f)
+            except FileNotFoundError:
+                if handle_not_found:
+                    return None
+                raise
 
     def __init__(
         self,
