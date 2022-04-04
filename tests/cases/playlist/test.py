@@ -1,4 +1,4 @@
-from nextsong.playlist import Playlist as p
+from nextsong import Playlist as p
 from testutils import rootrel, firstn
 
 assert list(p()) == []

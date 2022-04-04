@@ -2,7 +2,7 @@
 import argparse
 
 from nextsong.config import get as get_cfg
-from nextsong.playlist import Playlist
+from nextsong import Playlist
 import nextsong as nextsong_pkg
 
 
