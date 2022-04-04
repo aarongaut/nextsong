@@ -23,6 +23,12 @@ class Playlist:
     """
 
     class PlaylistState:
+        """Represents the state of iteration through a Playlist
+
+        This class is an iterator on a Playlist and can be pickled
+        to a file.
+        """
+
         def __init__(self, iterator):
             self.__iterator = iterator
 
@@ -30,6 +36,14 @@ class Playlist:
             return next(self.__iterator)
 
         def save(self, filepath=None):
+            """Pickles a PlaylistState instance to a file
+
+            Arguments
+            ---------
+            filepath: str or None
+                The desired path to pickle to. If None, uses the value
+                of the "state_path" config.
+            """
             if filepath is None:
                 filepath = get_config("state_path")
             with open(filepath, "wb") as file:
@@ -37,6 +51,19 @@ class Playlist:
 
         @staticmethod
         def load(filepath=None, *, handle_not_found=True):
+            """Loads a pickled PlaylistState instance from a file
+
+            Arguments
+            ---------
+            filepath: str or None
+                The path to the pickle file. If None, uses the value of
+                the "state_path" config.
+            handle_not_found: bool
+                Determines what should happen if the given filepath
+                doesn't exist. If True, a value of None is returned.
+                If False, the FileNotFoundError is allowed to
+                propagate.
+            """
             if filepath is None:
                 filepath = get_config("state_path")
             try:
@@ -106,7 +133,6 @@ class Playlist:
             sampling. A Playlist with a weight of zero is disabled and
             will never be selected.
         """
-
         self.__validate_children(children)
         self.__children = children
 
@@ -155,10 +181,19 @@ class Playlist:
 
     @property
     def children(self):
+        """The items iterated over by the Playlist
+
+        Returns a list of items this Playlist iterates over, including
+        sub-Playlists and paths to media files.
+        """
         return list(self.__children)
 
     @property
     def options(self):
+        """Values that modify the Playlist's iteration rules
+
+        Returns a dictioinary of the options in use by the Playlist.
+        """
         return dict(self.__options)
 
     @staticmethod
@@ -188,11 +223,14 @@ class Playlist:
             supported_paths = resolved_paths
         return supported_paths
 
-    def create_sequence(self):
+    def __create_sequence(self):
         processed_children = []
         for child in self.children:
             if isinstance(child, Playlist):
-                processed_children.append(child.create_sequence())
+                # pylint: disable=protected-access
+                # Reason: accessing a protected member of another
+                # instance of the same class
+                processed_children.append(child.__create_sequence())
             if isinstance(child, str):
                 processed_children.extend(self.__resolve_path(child))
 
@@ -216,9 +254,19 @@ class Playlist:
         )
 
     def __iter__(self):
-        return self.PlaylistState(iter(self.create_sequence()))
+        return self.PlaylistState(iter(self.__create_sequence()))
 
     def save_xml(self, filepath=None):
+        """Save the Playlist to an xml file
+
+        The Playlist can later be recreated using Playlist.load_xml
+
+        Arguments
+        ---------
+        filepath: str or None
+            The desired path of the xml file. If None, uses the value of
+            the "playlist_path" config.
+        """
         if filepath is None:
             filepath = get_config("playlist_path")
 
@@ -269,6 +317,17 @@ class Playlist:
 
     @staticmethod
     def load_xml(filepath=None):
+        """Create a Playlist instance loaded from an xml file
+
+        The xml file should follow the format of one created by
+        Playlist.save_xml.
+
+        Arguments
+        ---------
+        filepath: str or None
+            The path to the xml file. If None, uses the value of the
+            "playlist_path" config.
+        """
         if filepath is None:
             filepath = get_config("playlist_path")
 
@@ -321,8 +380,4 @@ class Playlist:
 
         return to_node(elem)
 
-    @classmethod
-    def load_state(cls, filepath=None, *, handle_not_found=True):
-        return cls.PlaylistState.load(
-            filepath=filepath, handle_not_found=handle_not_found
-        )
+    load_state = PlaylistState.load

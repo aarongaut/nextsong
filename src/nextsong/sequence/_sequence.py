@@ -23,6 +23,8 @@ class AbstractWeightedIterable(Iterable):
     """Requiring Iterable methods and a 'weight' property"""
 
     # pylint: disable=too-few-public-methods
+    # Reason: this class is merely establishing a minimal interface that
+    # all sequences must satisfy
     @property
     @abstractmethod
     def weight(self):
@@ -42,8 +44,8 @@ class TrivialSequence(AbstractWeightedIterable):
 
     class _TrivialIterator(Iterator):
         # pylint: disable=too-few-public-methods
-        # This is implemented as an iterator class instead of generator
-        # so that it can be pickled
+        # Reason: this is implemented as an iterator class instead of
+        # generator so that it can be pickled.
         def __init__(self, item):
             self.item = item
             self.consumed = False
@@ -70,8 +72,8 @@ class FiniteSequence(AbstractWeightedIterable):
 
     class _FiniteIterator(Iterator):
         # pylint: disable=too-few-public-methods
-        # This is implemented as an iterator class instead of generator
-        # so that it can be pickled
+        # Reason: this is implemented as an iterator class instead of
+        # generator so that it can be pickled.
         def __init__(self, items):
             self.stack = [iter(x) for x in reversed(items)]
 
@@ -153,8 +155,8 @@ class OrderedLoopingSequence(AbstractWeightedIterable):
 
     class _OrderedLoopingIterator(Iterator):
         # pylint: disable=too-few-public-methods
-        # This is implemented as an iterator class instead of generator
-        # so that it can be pickled
+        # Reason: this is implemented as an iterator class instead of
+        # generator so that it can be pickled
         def __init__(self, sequence):
             self.sequence = sequence
             self.iterator = None
