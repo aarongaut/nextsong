@@ -5,6 +5,7 @@ from nextsong.config import get as get_cfg
 from nextsong import Playlist
 import nextsong as nextsong_pkg
 
+
 def nextsong():
     """Gets the next song in the playlist
 
