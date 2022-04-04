@@ -58,7 +58,7 @@ def nextsong():
     ):
         state = None
         if not get_cfg("new_state"):
-            state = Playlist.PlaylistState.load(handle_not_found=True)
+            state = Playlist.load_state(handle_not_found=True)
         if state is None:
             playlist = Playlist.load_xml()
             state = iter(playlist)
