@@ -20,6 +20,7 @@ DEFAULT_RECENT_PORTION = 0.5
 
 
 class AbstractWeightedIterable(Iterable):
+    # pylint: disable=too-few-public-methods
     @property
     @abstractmethod
     def weight(self):
@@ -28,6 +29,9 @@ class AbstractWeightedIterable(Iterable):
 
 class TrivialSequence(AbstractWeightedIterable):
     class _TrivialIterator(Iterator):
+        # pylint: disable=too-few-public-methods
+        # This is implemented as an iterator class instead of generator
+        # so that it can be pickled
         def __init__(self, item):
             self.item = item
             self.consumed = False
@@ -51,6 +55,9 @@ class TrivialSequence(AbstractWeightedIterable):
 
 class FiniteSequence(AbstractWeightedIterable):
     class _FiniteIterator(Iterator):
+        # pylint: disable=too-few-public-methods
+        # This is implemented as an iterator class instead of generator
+        # so that it can be pickled
         def __init__(self, items):
             self.stack = [iter(x) for x in reversed(items)]
 
@@ -127,8 +134,11 @@ class FiniteSequence(AbstractWeightedIterable):
         return self._FiniteIterator(choices)
 
 
-class OrderedLoopingSequence(Iterable):
+class OrderedLoopingSequence(AbstractWeightedIterable):
     class _OrderedLoopingIterator(Iterator):
+        # pylint: disable=too-few-public-methods
+        # This is implemented as an iterator class instead of generator
+        # so that it can be pickled
         def __init__(self, sequence):
             self.sequence = sequence
             self.iterator = None
@@ -144,17 +154,24 @@ class OrderedLoopingSequence(Iterable):
                 except StopIteration:
                     self.iterator = None
 
-    def __init__(self, *items, portion=None, count=None):
+    def __init__(self, *items, portion=None, count=None, weight=None):
         self.__sequence = FiniteSequence(
-            *items, portion=portion, count=count, shuffle=False
+            *items, portion=portion, count=count, shuffle=False, weight=weight
         )
+
+    @property
+    def weight(self):
+        return self.__sequence.weight
 
     def __iter__(self):
         return self._OrderedLoopingIterator(self.__sequence)
 
 
-class ShuffledLoopingSequence(Iterable):
+class ShuffledLoopingSequence(AbstractWeightedIterable):
     class _ShuffledLoopingIterator(Iterator):
+        # pylint: disable=too-few-public-methods
+        # This is implemented as an iterator class instead of generator
+        # so that it can be pickled
         def __init__(self, items, recent_size):
             self.fresh_items = list(items)
             self.recent_items = []
@@ -185,7 +202,7 @@ class ShuffledLoopingSequence(Iterable):
                 except StopIteration:
                     self.current_iter = None
 
-    def __init__(self, *items, recent_portion=None):
+    def __init__(self, *items, recent_portion=None, weight=None):
         items = [
             x if isinstance(x, AbstractWeightedIterable) else TrivialSequence(x)
             for x in items
@@ -195,6 +212,19 @@ class ShuffledLoopingSequence(Iterable):
             recent_portion = DEFAULT_RECENT_PORTION
         self.__items = items
         self.__recent_size = int(round(min(1.0, max(0.0, recent_portion)) * len(items)))
+
+        if weight is None:
+            weight = DEFAULT_WEIGHT
+        # Disable this sequence from being used in a parent if it will
+        # never produce any items (prevents infinite busy looping in some
+        # degenerate cases)
+        if not self.__items:
+            weight = 0
+        self.__weight = weight
+
+    @property
+    def weight(self):
+        return self.__weight
 
     def __iter__(self):
         return self._ShuffledLoopingIterator(self.__items, self.__recent_size)
