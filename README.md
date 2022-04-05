@@ -37,7 +37,7 @@ This creates a file named `nextsong.xml` describing the playlist:
 
 After creating the XML file, invoke `nextsong` from the command line to get the next track in the playlist
 
-```
+```sh
 $ nextsong
 /home/myusername/media/music/my_favorite_song.mp3
 $ nextsong
@@ -67,7 +67,7 @@ To update the `ezstream` XML file see the `ezstream` man page for the most flesh
 
 When running `nextsong` through `ezstream` you can use environment variables to adjust the configuration. For example, to set `nextsong`'s `media_root` config, run `ezstream` with `NEXTSONG_MEDIA_ROOT` set to the desired value
 
-```
+```sh
 $ NEXTSONG_MEDIA_ROOT=~/music ezstream -c ~/ezstream.xml
 ```
 
@@ -75,7 +75,7 @@ $ NEXTSONG_MEDIA_ROOT=~/music ezstream -c ~/ezstream.xml
 
 Any module, class, or function can be passed into the builtin `help` function for detailed information. See `tests/cases/examples` for complete usage examples. For help on the command line tool, invoke
 
-```
+```sh
 $ nextsong --help
 ```
 
@@ -89,30 +89,30 @@ Requires Python 3.7 or higher
 
 Install using pip
 
-```
-python3 -m pip install nextsong
+```sh
+$ python3 -m pip install nextsong
 ```
 
 ## From source
 
 First install build dependencies
 
-```
-python3 -m pip install build
+```sh
+$ python3 -m pip install build
 ```
 
 Building the distribution
 
-```
-git clone https://gitlab.com/samflam/nextsong.git
-cd nextsong
-make
+```sh
+$ git clone https://gitlab.com/samflam/nextsong.git
+$ cd nextsong
+$ make
 ```
 
 To install, you can `pip install` the built wheel in `dist` or simply run
 
-```
-make install
+```sh
+$ make install
 ```
 
 # Testing
@@ -124,6 +124,6 @@ There are some additionally dependencies for testing
 
 From the top level, do
 
-```
-make test
+```sh
+$ make test
 ```
