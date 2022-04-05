@@ -73,6 +73,8 @@ When running `nextsong` through `ezstream` you can use environment variables to 
 $ NEXTSONG_MEDIA_ROOT=~/music ezstream -c ~/ezstream.xml
 ```
 
+Details on config values and their corresponding environment variables can be found in the `nextsong.config` docstring, which can be viewed in the Python interpreter by calling `help(nextsong.config)`.
+
 ## Local playback example with vlc
 
 While actually playing the media is outside this library's scope, it's fairly straightforward to write a script that does media playback by invoking `nextsong` in a loop and feeding the result into a media player. For example, here's a bash script using vlc to play the playlist:
