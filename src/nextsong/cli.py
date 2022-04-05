@@ -2,7 +2,7 @@
 import argparse
 
 from nextsong.config import get as get_cfg
-from nextsong import Playlist
+from nextsong import ensure_state
 import nextsong as nextsong_pkg
 
 
@@ -60,21 +60,8 @@ def nextsong():
         state_path=args.state,
         new_state=args.new_state,
     ):
-        state = None
-        if not get_cfg("new_state"):
-            state = Playlist.load_state(handle_not_found=True)
-        if state is None:
-            playlist = Playlist.load_xml()
-            state = iter(playlist)
-
-        try:
-            media = next(state)
-        except StopIteration:
-            media = None
-
-        state.save()
-
-        if media is None:
-            print()
-        else:
-            print(media)
+        with ensure_state() as state:
+            try:
+                print(next(state))
+            except StopIteration:
+                print()

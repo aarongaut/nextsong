@@ -22,3 +22,4 @@ from . import sequence
 from . import playlist
 
 Playlist = playlist.Playlist
+ensure_state = playlist.ensure_state

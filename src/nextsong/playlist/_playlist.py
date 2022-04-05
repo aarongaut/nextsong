@@ -1,6 +1,6 @@
 """Implementation of playlist subpackage"""
 
-__all__ = ["Playlist"]
+__all__ = ["Playlist", "ensure_state"]
 
 from pathlib import Path
 import pickle
@@ -29,8 +29,9 @@ class Playlist:
         to a file.
         """
 
-        def __init__(self, iterator):
+        def __init__(self, iterator, from_path=None):
             self.__iterator = iterator
+            self.__from_path = from_path
 
         def __next__(self):
             return next(self.__iterator)
@@ -49,8 +50,14 @@ class Playlist:
             with open(filepath, "wb") as file:
                 return pickle.dump(self, file)
 
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc_value, traceback):
+            self.save(self.__from_path)
+
         @staticmethod
-        def load(filepath=None, *, handle_not_found=True):
+        def load(filepath=None, *, handle_not_found=False):
             """Loads a pickled PlaylistState instance from a file
 
             Arguments
@@ -381,3 +388,42 @@ class Playlist:
         return to_node(elem)
 
     load_state = PlaylistState.load
+
+
+def ensure_state(*, state_path=None, playlist_path=None, new_state=None):
+    """Loads a Playlist.PlaylistState or creates a new one
+
+    This function will either load an existing PlaylistState from the
+    filesystem, or if it doesn't exist, load a Playlist from the
+    filesystem and use it to create a new PlaylistState.
+
+    Arguments
+    ---------
+    state_path: str or None
+        The path to the PlaylistState pickle file. If None, uses the
+        value of the "state_path" config.
+    playlist_path: str or None
+        The path to the playlist xml file. This is used to create the
+        PlaylistState if the pickle file doesn't already exist. If None,
+        uses the value of the "playlist_path" config.
+    new_state: bool or None
+        If True, forces the creation of a new PlaylistState from a
+        Playlist. If None, uses the value of the "new_state" config.
+    """
+    if new_state is None:
+        new_state = get_config("new_state")
+
+    state = None
+
+    if not new_state:
+        try:
+            return Playlist.load_state(state_path)
+        except FileNotFoundError:
+            pass
+
+    if state is None:
+        playlist = Playlist.load_xml(playlist_path)
+        state = iter(playlist)
+        state.save(state_path)
+
+    return state
