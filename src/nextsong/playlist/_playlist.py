@@ -27,9 +27,20 @@ class Playlist:
 
         This class is an iterator on a Playlist and can be pickled
         to a file.
+
+        A PlaylistState can be used as the subject of a 'with'
+        statement to ensure the pickle file is written at the end of
+        the 'with' block. If the state was originally loaded from a
+        file, the same file will be written to. Otherwise, the
+        "state_path" config value will be used.
         """
 
         def __init__(self, iterator, from_path=None):
+            """Internal constructor for PlaylistState
+
+            Users should instead call Playlist.__iter__ or
+            Playlist.load_state to create a PlaylistState.
+            """
             self.__iterator = iterator
             self.__from_path = from_path
 
