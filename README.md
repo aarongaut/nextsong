@@ -1,11 +1,13 @@
-`nextsong` is a library and command line executable to support creating media playlists with a complex nested structure. It was developed to be used with [ezstream](https://icecast.org/ezstream/)'s playlist scripting capability.
+`nextsong` is a library and command line executable to support creating media playlists with a complex nested structure.
+
+_Note: This project is theoretically platform agnostic, but isn't tested outside of Linux. If you encounter a problem using it on another platform please feel free to open an issue._
 
 # Features
 
-- Recursive tree-based structure, where each node is also a playlist with various options for sampling songs
-- Command-line executable that prints the next song in the playlist
+- Recursive tree-based structure, where each item in the playlist is itself a playlist with various options for sampling songs
 - Save and load playlists using a validated XML file (XSD under development)
-- Simple ezstream integration
+- Command-line executable to get the next song in the playlist
+- [ezstream](https://icecast.org/ezstream/) integration
 
 # Usage
 
@@ -69,6 +71,27 @@ When running `nextsong` through `ezstream` you can use environment variables to 
 
 ```sh
 $ NEXTSONG_MEDIA_ROOT=~/music ezstream -c ~/ezstream.xml
+```
+
+## Local playback example with vlc
+
+While actually playing the media is outside this library's scope, it's fairly straightforward to write a script that does media playback by invoking `nextsong` in a loop and feeding the result into a media player. For example, here's a bash script using vlc to play the playlist:
+
+```bash
+#!/usr/bin/env bash
+
+trap break INT
+while true
+do
+    TRACK="$(nextsong)"
+    if [ -z "$TRACK" ]
+    then
+        printf "End of playlist\n"
+        break
+    fi
+    printf "Playing $TRACK\n"
+    cvlc --play-and-exit "$TRACK" >& /dev/null
+done
 ```
 
 ## Learning more
