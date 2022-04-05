@@ -78,8 +78,6 @@ $ NEXTSONG_MEDIA_ROOT=~/music ezstream -c ~/ezstream.xml
 While actually playing the media is outside this library's scope, it's fairly straightforward to write a script that does media playback by invoking `nextsong` in a loop and feeding the result into a media player. For example, here's a bash script using vlc to play the playlist:
 
 ```bash
-#!/usr/bin/env bash
-
 trap break INT
 while true
 do
