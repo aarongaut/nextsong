@@ -138,7 +138,7 @@ $ make install
 
 # Testing
 
-There are some additionally dependencies for testing
+There are some additional dependencies for testing
 
 - `black`: format checker
 - `pylint`: linter
