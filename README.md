@@ -89,7 +89,7 @@ do
         printf "End of playlist\n"
         break
     fi
-    printf "Playing $TRACK\n"
+    printf "Playing %s\n" "$TRACK"
     cvlc --play-and-exit "$TRACK" >& /dev/null
 done
 ```
