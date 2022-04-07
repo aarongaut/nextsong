@@ -5,7 +5,7 @@ _Note: This project is theoretically platform agnostic, but isn't tested outside
 # Features
 
 - Recursive tree-based structure, where each item in the playlist is itself a playlist with various options for sampling songs
-- Save and load playlists using a validated XML file (XSD under development)
+- XML format to save and load playlists
 - Command-line executable to get the next song in the playlist
 - [ezstream](https://icecast.org/ezstream/) integration
 
