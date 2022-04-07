@@ -14,7 +14,7 @@ sample:
     low level random sampling routines
 """
 
-__version__ = "1.1.1"
+__version__ = "1.1.2.dev0"
 
 from . import config
 from . import sample
