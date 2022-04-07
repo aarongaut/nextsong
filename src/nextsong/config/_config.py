@@ -3,13 +3,33 @@
 __all__ = ["get", "Config"]
 
 import os
+from collections import defaultdict
+
+
+def _parse_exts(exts):
+    if isinstance(exts, str):
+        exts = exts.split()
+    return [ext.lower().lstrip(".") for ext in exts]
+
+
+config_types = defaultdict(
+    lambda: str,
+    **{
+        "new_state": bool,
+        "media_exts": _parse_exts,
+    },
+)
+
+
+def _parse_config(config):
+    return {k: config_types[k](v) for k, v in config.items() if v is not None}
 
 
 default_config = {
     "priority": 0,
     "values": {
         "media_root": "./media",
-        "media_exts": None,
+        "media_exts": [],
         "playlist_path": "./nextsong.xml",
         "state_path": "./state.pickle",
         "new_state": False,
@@ -18,19 +38,16 @@ default_config = {
 
 env_config = {
     "priority": 10,
-    "values": {},
+    "values": _parse_config(
+        {
+            "media_root": os.getenv("NEXTSONG_MEDIA_ROOT", None),
+            "media_exts": os.getenv("NEXTSONG_MEDIA_EXTS", None),
+            "playlist_path": os.getenv("NEXTSONG_PLAYLIST_PATH", None),
+            "state_path": os.getenv("NEXTSONG_STATE_PATH", None),
+            "new_state": os.getenv("NEXTSONG_NEW_STATE", None),
+        }
+    ),
 }
-
-if "NEXTSONG_MEDIA_ROOT" in os.environ:
-    env_config["values"]["media_root"] = os.environ["NEXTSONG_MEDIA_ROOT"]
-if "NEXTSONG_MEDIA_EXTS" in os.environ:
-    env_config["values"]["media_exts"] = os.environ["NEXTSONG_MEDIA_EXTS"].split(" ")
-if "NEXTSONG_PLAYLIST_PATH" in os.environ:
-    env_config["values"]["playlist_path"] = os.environ["NEXTSONG_PLAYLIST_PATH"]
-if "NEXTSONG_STATE_PATH" in os.environ:
-    env_config["values"]["state_path"] = os.environ["NEXTSONG_STATE_PATH"]
-if "NEXTSONG_NEW_STATE" in os.environ:
-    env_config["values"]["new_state"] = bool(os.environ["NEXTSONG_NEW_STATE"])
 
 config_stack = [default_config, env_config]
 
@@ -64,7 +81,7 @@ class Config:
         """
         self.__config = {
             "priority": priority,
-            "values": values,
+            "values": _parse_config(values),
         }
 
     def __enter__(self):
