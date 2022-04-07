@@ -222,7 +222,7 @@ class Playlist:
             resolved_paths = [resolved_path]
         else:
             resolved_paths = sorted(p.resolve() for p in root.glob(path))
-            resolved_paths = [p for p in resolved_paths if p.exists()]
+            resolved_paths = [p for p in resolved_paths if p.exists() and p.is_file()]
             if not resolved_paths:
                 warnings.warn(
                     f'file "{resolved_path}" not found and has no matches as a glob pattern'
