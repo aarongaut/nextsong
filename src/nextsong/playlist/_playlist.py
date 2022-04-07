@@ -118,7 +118,7 @@ class Playlist:
             random order.
         loop:
             If True, the Playlist will loop forever through its
-            children. Only the top-level Playlist can have loop=True.
+            children.
         portion:
             A number or pair of numbers between 0 and 1. Specifies the
             portion of items in the playlist to be used in a pass of the
@@ -169,10 +169,7 @@ class Playlist:
     def __validate_children(children):
         for child in children:
             if isinstance(child, Playlist):
-                if child.options["loop"]:
-                    raise ValueError(
-                        "loop=True is only allowed for the top-level Playlist"
-                    )
+                pass
             elif isinstance(child, str):
                 pass
             else:
@@ -181,8 +178,6 @@ class Playlist:
     @staticmethod
     def __validate_options(options):
         if options["loop"]:
-            if options["weight"] is not None:
-                raise ValueError("weight requires loop=False")
             if options["shuffle"]:
                 if options["count"] is not None:
                     raise ValueError("count requires loop=False or shuffle=False")
@@ -255,10 +250,11 @@ class Playlist:
         if self.options["loop"]:
             if self.options["shuffle"]:
                 return seq.ShuffledLoopingSequence(
-                    *processed_children, recent_portion=self.options["recent_portion"]
+                    *processed_children, weight=self.options["weight"], recent_portion=self.options["recent_portion"]
                 )
             return seq.OrderedLoopingSequence(
                 *processed_children,
+                weight=self.options["weight"],
                 portion=self.options["portion"],
                 count=self.options["count"],
             )
