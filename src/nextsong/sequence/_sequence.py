@@ -42,7 +42,6 @@ class AbstractSequence(Iterable):
 
         Used to prevent infinite loops
         """
-        pass
 
 class TrivialSequence(AbstractSequence):
     """An iterable that yields one item one time
