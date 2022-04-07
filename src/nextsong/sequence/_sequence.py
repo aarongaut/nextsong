@@ -43,6 +43,7 @@ class AbstractSequence(Iterable):
         Used to prevent infinite loops
         """
 
+
 class TrivialSequence(AbstractSequence):
     """An iterable that yields one item one time
 
@@ -127,8 +128,7 @@ class FiniteSequence(AbstractSequence):
 
     def __init__(self, *items, weight=None, portion=None, count=None, shuffle=False):
         items = [
-            x if isinstance(x, AbstractSequence) else TrivialSequence(x)
-            for x in items
+            x if isinstance(x, AbstractSequence) else TrivialSequence(x) for x in items
         ]
         self.__items = items
         self.__shuffle = shuffle
@@ -237,8 +237,7 @@ class ShuffledLoopingSequence(AbstractSequence):
 
     def __init__(self, *items, recent_portion=None, weight=None):
         items = [
-            x if isinstance(x, AbstractSequence) else TrivialSequence(x)
-            for x in items
+            x if isinstance(x, AbstractSequence) else TrivialSequence(x) for x in items
         ]
         if recent_portion is None:
             recent_portion = DEFAULT_RECENT_PORTION

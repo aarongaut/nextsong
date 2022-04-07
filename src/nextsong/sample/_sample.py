@@ -67,8 +67,7 @@ def sublist(items, count, weights=None):
         raise ValueError("Length mismatch between items and weights")
 
     candidates = [
-        (i, item, weight)
-        for i, (item, weight) in enumerate(zip(items, weights))
+        (i, item, weight) for i, (item, weight) in enumerate(zip(items, weights))
     ]
     choices = []
 
