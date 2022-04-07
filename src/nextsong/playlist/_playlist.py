@@ -234,7 +234,7 @@ class Playlist:
                     )
         else:
             supported_paths = resolved_paths
-        return supported_paths
+        return [str(p) for p in supported_paths]
 
     def __create_sequence(self):
         processed_children = []
