@@ -16,13 +16,12 @@ def weighted_choice(weights):
     Arguments
     ---------
     weights:
-        A list of nonnegative numbers containing at least one positive
-        number.
+        A list of nonnegative numbers.
     """
     if any(w < 0 for w in weights):
         raise ValueError("weights must be nonnegative")
     if all(w == 0 for w in weights):
-        raise ValueError("at least one weight must be positive")
+        weights = [1] * len(weights)
     total_weight = sum(weights)
     normed_weights = [weight / total_weight for weight in weights]
     running_total = 0
@@ -52,9 +51,8 @@ def sublist(items, count, weights=None):
         The number of entries from items to be returned.
     weights: List[float]
         A list with equal length to items. Indicates the relative
-        likelyhood of the item being used in the sample. An item
-        with zero weight is never included, even it means not reaching
-        count entries. If not given, all items have equal weight.
+        likelyhood of the item being used in the sample. If not given,
+        all items have equal weight.
 
     """
     items = list(items)
@@ -71,7 +69,6 @@ def sublist(items, count, weights=None):
     candidates = [
         (i, item, weight)
         for i, (item, weight) in enumerate(zip(items, weights))
-        if weight > 0
     ]
     choices = []
 

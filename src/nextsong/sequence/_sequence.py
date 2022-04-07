@@ -1,7 +1,7 @@
 """Implementation of sequence subpackage"""
 
 __all__ = [
-    "AbstractWeightedIterable",
+    "AbstractSequence",
     "TrivialSequence",
     "FiniteSequence",
     "OrderedLoopingSequence",
@@ -19,12 +19,14 @@ DEFAULT_WEIGHT = 1.0
 DEFAULT_RECENT_PORTION = 0.5
 
 
-class AbstractWeightedIterable(Iterable):
-    """Requiring Iterable methods and a 'weight' property"""
+class AbstractSequence(Iterable):
+    """Abstract class for sequences
 
-    # pylint: disable=too-few-public-methods
-    # Reason: this class is merely establishing a minimal interface that
-    # all sequences must satisfy
+    Requires Iterable methods and a 'weight' property, as well as a
+    can_produce method used to avoid infinite busy loops on looping
+    sequences.
+    """
+
     @property
     @abstractmethod
     def weight(self):
@@ -34,8 +36,15 @@ class AbstractWeightedIterable(Iterable):
         included in a random sample.
         """
 
+    @abstractmethod
+    def can_produce(self):
+        """Check whether the sequence has a chance of produce an item
 
-class TrivialSequence(AbstractWeightedIterable):
+        Used to prevent infinite loops
+        """
+        pass
+
+class TrivialSequence(AbstractSequence):
     """An iterable that yields one item one time
 
     This sequence is used as a component in other sequences in order to
@@ -59,6 +68,9 @@ class TrivialSequence(AbstractWeightedIterable):
     def __init__(self, item):
         self.__item = item
 
+    def can_produce(self):
+        return True
+
     @property
     def weight(self):
         return DEFAULT_WEIGHT
@@ -67,7 +79,7 @@ class TrivialSequence(AbstractWeightedIterable):
         return self._TrivialIterator(self.__item)
 
 
-class FiniteSequence(AbstractWeightedIterable):
+class FiniteSequence(AbstractSequence):
     """A sequence that terminates after a pass through its items"""
 
     class _FiniteIterator(Iterator):
@@ -116,10 +128,9 @@ class FiniteSequence(AbstractWeightedIterable):
 
     def __init__(self, *items, weight=None, portion=None, count=None, shuffle=False):
         items = [
-            x if isinstance(x, AbstractWeightedIterable) else TrivialSequence(x)
+            x if isinstance(x, AbstractSequence) else TrivialSequence(x)
             for x in items
         ]
-        items = [x for x in items if x.weight > 0]
         self.__items = items
         self.__shuffle = shuffle
 
@@ -127,19 +138,18 @@ class FiniteSequence(AbstractWeightedIterable):
         if weight is None:
             weight = DEFAULT_WEIGHT
 
-        # Disable this sequence from being used in a parent if it will
-        # never produce any items (prevents infinite busy looping in some
-        # degenerate cases)
-        if not self.__items:
-            weight = 0
-        if max(*self.__count) == 0:
-            weight = 0
-
         self.__weight = weight
 
     @property
     def weight(self):
         return self.__weight
+
+    def can_produce(self):
+        if not any(x.can_produce() for x in self.__items):
+            return False
+        if not min(*self.__count):
+            return False
+        return True
 
     def __iter__(self):
         count = random.randint(*self.__count)
@@ -150,7 +160,7 @@ class FiniteSequence(AbstractWeightedIterable):
         return self._FiniteIterator(choices)
 
 
-class OrderedLoopingSequence(AbstractWeightedIterable):
+class OrderedLoopingSequence(AbstractSequence):
     """A sequence that repeatedly loops through its items in order"""
 
     class _OrderedLoopingIterator(Iterator):
@@ -162,8 +172,9 @@ class OrderedLoopingSequence(AbstractWeightedIterable):
             self.iterator = None
 
         def __next__(self):
-            if self.sequence.weight == 0:
+            if not self.sequence.can_produce():
                 raise StopIteration
+
             while True:
                 if self.iterator is None:
                     self.iterator = iter(self.sequence)
@@ -177,6 +188,9 @@ class OrderedLoopingSequence(AbstractWeightedIterable):
             *items, portion=portion, count=count, shuffle=False, weight=weight
         )
 
+    def can_produce(self):
+        return self.__sequence.can_produce()
+
     @property
     def weight(self):
         return self.__sequence.weight
@@ -185,7 +199,7 @@ class OrderedLoopingSequence(AbstractWeightedIterable):
         return self._OrderedLoopingIterator(self.__sequence)
 
 
-class ShuffledLoopingSequence(AbstractWeightedIterable):
+class ShuffledLoopingSequence(AbstractSequence):
     """A sequence that repeatedly samples randomly from its items"""
 
     class _ShuffledLoopingIterator(Iterator):
@@ -200,11 +214,11 @@ class ShuffledLoopingSequence(AbstractWeightedIterable):
             self.item_count = len(items)
 
         def __next__(self):
-            if not self.item_count:
-                raise StopIteration
-
+            all_items = self.fresh_items + self.recent_items
             while True:
                 if self.current_iter is None:
+                    if not any(x.can_produce() for x in all_items):
+                        raise StopIteration
                     if self.fresh_items:
                         i = weighted_choice([x.weight for x in self.fresh_items])
                         choice = self.fresh_items.pop(i)
@@ -224,10 +238,9 @@ class ShuffledLoopingSequence(AbstractWeightedIterable):
 
     def __init__(self, *items, recent_portion=None, weight=None):
         items = [
-            x if isinstance(x, AbstractWeightedIterable) else TrivialSequence(x)
+            x if isinstance(x, AbstractSequence) else TrivialSequence(x)
             for x in items
         ]
-        items = [x for x in items if x.weight > 0]
         if recent_portion is None:
             recent_portion = DEFAULT_RECENT_PORTION
         self.__items = items
@@ -235,16 +248,16 @@ class ShuffledLoopingSequence(AbstractWeightedIterable):
 
         if weight is None:
             weight = DEFAULT_WEIGHT
-        # Disable this sequence from being used in a parent if it will
-        # never produce any items (prevents infinite busy looping in some
-        # degenerate cases)
-        if not self.__items:
-            weight = 0
         self.__weight = weight
 
     @property
     def weight(self):
         return self.__weight
+
+    def can_produce(self):
+        if not any(x.can_produce() for x in self.__items):
+            return False
+        return True
 
     def __iter__(self):
         return self._ShuffledLoopingIterator(self.__items, self.__recent_size)
