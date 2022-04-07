@@ -384,7 +384,13 @@ class Playlist:
             warnings.warn(f'unexpected tag "{elem.tag}"')
             return None
 
-        tree = etree.parse(filepath)
+        try:
+            tree = etree.parse(filepath)
+        except OSError:
+            # lxml.etree only raises a basic OSError. Try opening
+            # ourselves to trigger a more detailed error.
+            with open(filepath, "r"):
+                pass
         root = tree.getroot()
         if root.tag.lower() == "playlist":
             elem = root
