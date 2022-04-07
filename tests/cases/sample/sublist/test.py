@@ -4,10 +4,6 @@ import random
 
 assert sublist([], 0) == []  # sublist of empty list is empty
 assert sublist([], 100) == []  # count is capped by list length
-assert sublist([1, 2, 3, 4], 100, weights=[1, 0, -1, 1]) == [
-    1,
-    4,
-]  # Items with nonpositive weight are dropped
 assert sublist([1] * 50, 12) == [1] * 12  # The sublist has count entries
 
 items = [2] * 1000 + [1] * 1000
