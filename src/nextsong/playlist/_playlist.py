@@ -250,7 +250,9 @@ class Playlist:
         if self.options["loop"]:
             if self.options["shuffle"]:
                 return seq.ShuffledLoopingSequence(
-                    *processed_children, weight=self.options["weight"], recent_portion=self.options["recent_portion"]
+                    *processed_children,
+                    weight=self.options["weight"],
+                    recent_portion=self.options["recent_portion"],
                 )
             return seq.OrderedLoopingSequence(
                 *processed_children,
