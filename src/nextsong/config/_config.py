@@ -54,7 +54,9 @@ config_stack = [default_config, env_config]
 
 def get(key):
     """Get a config value by name"""
-    items = sorted((x["priority"], i, x["values"]) for i, x in enumerate(config_stack))
+    items = sorted(
+        (x["priority"], i, x["values"]) for i, x in enumerate(config_stack)
+    )
     for _, _, values in reversed(items):
         if key in values:
             return values[key]

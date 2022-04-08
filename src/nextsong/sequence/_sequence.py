@@ -114,7 +114,9 @@ class FiniteSequence(AbstractSequence):
                 ):
                     raise ValueError("portion should contain two numbers")
             else:
-                raise ValueError("portion should be a number or pair of numbers")
+                raise ValueError(
+                    "portion should be a number or pair of numbers"
+                )
             count = tuple(int(round(x * item_count)) for x in portion)
 
         if isinstance(count, int):
@@ -126,9 +128,12 @@ class FiniteSequence(AbstractSequence):
             raise ValueError("count should be an int or pair of ints")
         return tuple(min(item_count, max(0, x)) for x in count)
 
-    def __init__(self, *items, weight=None, portion=None, count=None, shuffle=False):
+    def __init__(
+        self, *items, weight=None, portion=None, count=None, shuffle=False
+    ):
         items = [
-            x if isinstance(x, AbstractSequence) else TrivialSequence(x) for x in items
+            x if isinstance(x, AbstractSequence) else TrivialSequence(x)
+            for x in items
         ]
         self.__items = items
         self.__shuffle = shuffle
@@ -219,7 +224,9 @@ class ShuffledLoopingSequence(AbstractSequence):
                     if not any(x.can_produce() for x in all_items):
                         raise StopIteration
                     if self.fresh_items:
-                        i = weighted_choice([x.weight for x in self.fresh_items])
+                        i = weighted_choice(
+                            [x.weight for x in self.fresh_items]
+                        )
                         choice = self.fresh_items.pop(i)
                     elif self.recent_items:
                         choice = self.recent_items.pop(0)
@@ -237,12 +244,15 @@ class ShuffledLoopingSequence(AbstractSequence):
 
     def __init__(self, *items, recent_portion=None, weight=None):
         items = [
-            x if isinstance(x, AbstractSequence) else TrivialSequence(x) for x in items
+            x if isinstance(x, AbstractSequence) else TrivialSequence(x)
+            for x in items
         ]
         if recent_portion is None:
             recent_portion = DEFAULT_RECENT_PORTION
         self.__items = items
-        self.__recent_size = int(round(min(1.0, max(0.0, recent_portion)) * len(items)))
+        self.__recent_size = int(
+            round(min(1.0, max(0.0, recent_portion)) * len(items))
+        )
 
         if weight is None:
             weight = DEFAULT_WEIGHT

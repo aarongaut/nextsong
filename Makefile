@@ -21,7 +21,7 @@ clean:
 .PHONY: clean
 
 format fmt:
-	black .
+	black --line-length $(shell ./dev-bin/rl printenv BLACK_LINE_LENGTH) .
 .PHONY: format fmt
 
 test:

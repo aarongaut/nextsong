@@ -144,6 +144,7 @@ There are some additional dependencies for testing
 
 - `black`: format checker
 - `pylint`: linter
+- `flake8`: linter and style checker
 
 From the top level, do
 

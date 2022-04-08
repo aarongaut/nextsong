@@ -180,9 +180,13 @@ class Playlist:
         if options["loop"]:
             if options["shuffle"]:
                 if options["count"] is not None:
-                    raise ValueError("count requires loop=False or shuffle=False")
+                    raise ValueError(
+                        "count requires loop=False or shuffle=False"
+                    )
                 if options["portion"] is not None:
-                    raise ValueError("portion requires loop=False or shuffle=False")
+                    raise ValueError(
+                        "portion requires loop=False or shuffle=False"
+                    )
             else:
                 if options["recent_portion"] is not None:
                     raise ValueError("recent_portion requires shuffle=True")
@@ -190,7 +194,9 @@ class Playlist:
             if options["recent_portion"] is not None:
                 if options["shuffle"]:
                     raise ValueError("recent_portion requires loop=True")
-                raise ValueError("recent_portion requires loop=True and shuffle=True")
+                raise ValueError(
+                    "recent_portion requires loop=True and shuffle=True"
+                )
 
     @property
     def children(self):
@@ -220,17 +226,21 @@ class Playlist:
             resolved_paths = [p for p in resolved_paths if p.is_file()]
             if not resolved_paths:
                 warnings.warn(
-                    f'file "{resolved_path}" not found and has no matches as a glob pattern'
+                    f'file "{resolved_path}" not found and has no matches as '
+                    "a glob pattern"
                 )
 
         if get_config("media_exts"):
             supported_paths = []
             for resolved_path in resolved_paths:
-                if resolved_path.suffix.lower().lstrip(".") in get_config("media_exts"):
+                if resolved_path.suffix.lower().lstrip(".") in get_config(
+                    "media_exts"
+                ):
                     supported_paths.append(resolved_path)
                 else:
                     warnings.warn(
-                        f'file "{resolved_path}" has unsupported extension and will be skipped'
+                        f'file "{resolved_path}" has unsupported extension '
+                        "and will be skipped"
                     )
         else:
             supported_paths = resolved_paths
@@ -309,7 +319,9 @@ class Playlist:
                 if isinstance(val, (tuple, list)):
                     attributes[key] = " ".join(str(x) for x in val)
                     continue
-                warnings.warn(f'could not serialize option "{key}" with value "{val}"')
+                warnings.warn(
+                    f'could not serialize option "{key}" with value "{val}"'
+                )
             return attributes
 
         def to_elem(node):
@@ -364,7 +376,8 @@ class Playlist:
                         parsed_tokens.append(parse_type(token))
                     except ValueError:
                         warnings.warn(
-                            f'could not deserialize attribute "{key}" with value "{val}"'
+                            f'could not deserialize attribute "{key}" with '
+                            f'value "{val}"'
                         )
                         continue
                 if len(parsed_tokens) == 1:
