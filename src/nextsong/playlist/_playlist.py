@@ -404,6 +404,7 @@ class Playlist:
             # ourselves to trigger a more detailed error.
             with open(filepath, "r"):
                 pass
+            raise
         root = tree.getroot()
         if root.tag.lower() == "playlist":
             elem = root
