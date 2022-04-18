@@ -25,6 +25,8 @@ Playlist(
 ).save_xml()
 ```
 
+Each item the playlist can be a filepath, a glob pattern, or another playlist.
+
 This creates a file named `nextsong.xml` describing the playlist:
 
 ```xml
