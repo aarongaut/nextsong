@@ -25,7 +25,7 @@ Playlist(
 ).save_xml()
 ```
 
-Each item the playlist can be a filepath, a glob pattern, or another playlist.
+Each item the playlist can be a filepath, a [glob pattern](https://docs.python.org/3/library/pathlib.html#pathlib.Path.glob), or another playlist.
 
 This creates a file named `nextsong.xml` describing the playlist:
 
