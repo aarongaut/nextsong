@@ -5,6 +5,8 @@ __all__ = ["get", "Config"]
 import os
 from collections import defaultdict
 
+from nextsong.datatypes import OnChange
+
 
 def _parse_exts(exts):
     if isinstance(exts, str):
@@ -17,6 +19,7 @@ config_types = defaultdict(
     **{
         "new_state": bool,
         "media_exts": _parse_exts,
+        "on_change": OnChange.cast,
     },
 )
 
@@ -33,6 +36,7 @@ default_config = {
         "playlist_path": "./nextsong.xml",
         "state_path": "./state.pickle",
         "new_state": False,
+        "on_change": OnChange.ignore,
     },
 }
 
@@ -45,6 +49,7 @@ env_config = {
             "playlist_path": os.getenv("NEXTSONG_PLAYLIST_PATH", None),
             "state_path": os.getenv("NEXTSONG_STATE_PATH", None),
             "new_state": os.getenv("NEXTSONG_NEW_STATE", None),
+            "on_change": os.getenv("NEXTSONG_ON_CHANGE", None),
         }
     ),
 }

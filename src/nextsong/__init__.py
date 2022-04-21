@@ -17,6 +17,7 @@ sample:
 __version__ = "1.1.2.dev0"
 
 from . import config
+from . import datatypes
 from . import sample
 from . import sequence
 from . import playlist
