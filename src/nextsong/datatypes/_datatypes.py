@@ -21,8 +21,12 @@ class Option(Enum):
                 raise
         raise ValueError(f"Cannot cast {val} to {cls}")
 
+    @classmethod
+    def choices(cls):
+        return [x.lower() for x in cls.__members__]
+
 
 class OnChange(Option):
-    ignore = auto()
-    restart = auto()
-    #merge = auto()
+    IGNORE = auto()
+    RESTART = auto()
+    #MERGE = auto()

@@ -36,7 +36,7 @@ default_config = {
         "playlist_path": "./nextsong.xml",
         "state_path": "./state.pickle",
         "new_state": False,
-        "on_change": OnChange.ignore,
+        "on_change": OnChange.IGNORE,
     },
 }
 
@@ -86,13 +86,27 @@ class Config:
         keyword arguments are specific config values.
 
         """
-        self.__config = {
+        
+        object.__setattr__(self, '_Config__config', {
             "priority": priority,
             "values": _parse_config(values),
-        }
+        })
+
+    def __getitem__(self, key):
+        return get(key)
+
+    def __setitem__(self, key, value):
+        self.__config["values"].update(_parse_config({key: value}))
+
+    def __getattr__(self, key):
+        return get(key)
+
+    def __setattr__(self, key, value):
+        self.__config["values"].update(_parse_config({key: value}))
 
     def __enter__(self):
         config_stack.append(self.__config)
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         config_stack.pop()

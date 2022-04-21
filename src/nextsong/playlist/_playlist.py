@@ -9,7 +9,7 @@ import warnings
 from lxml import etree
 
 import nextsong.sequence as seq
-from nextsong.config import get as get_config
+from nextsong.config import Config, get as get_cfg
 
 
 class Playlist:
@@ -56,10 +56,9 @@ class Playlist:
                 The desired path to pickle to. If None, uses the value
                 of the "state_path" config.
             """
-            if filepath is None:
-                filepath = get_config("state_path")
-            with open(filepath, "wb") as file:
-                return pickle.dump(self, file)
+            with Config(state_path=filepath) as cfg:
+                with open(cfg.state_path, "wb") as file:
+                    return pickle.dump(self, file)
 
         def __enter__(self):
             return self
@@ -82,11 +81,10 @@ class Playlist:
                 If False, the FileNotFoundError is allowed to
                 propagate.
             """
-            if filepath is None:
-                filepath = get_config("state_path")
             try:
-                with open(filepath, "rb") as file:
-                    return pickle.load(file)
+                with Config(state_path=filepath) as cfg:
+                    with open(cfg.state_path, "rb") as file:
+                        return pickle.load(file)
             except FileNotFoundError:
                 if handle_not_found:
                     return None
@@ -217,7 +215,7 @@ class Playlist:
 
     @staticmethod
     def __resolve_path(path):
-        root = Path(get_config("media_root"))
+        root = Path(get_cfg("media_root"))
         resolved_path = (root / path).resolve()
         if resolved_path.exists():
             resolved_paths = [resolved_path]
@@ -230,10 +228,10 @@ class Playlist:
                     "a glob pattern"
                 )
 
-        if get_config("media_exts"):
+        if get_cfg("media_exts"):
             supported_paths = []
             for resolved_path in resolved_paths:
-                if resolved_path.suffix.lower().lstrip(".") in get_config(
+                if resolved_path.suffix.lower().lstrip(".") in get_cfg(
                     "media_exts"
                 ):
                     supported_paths.append(resolved_path)
@@ -293,9 +291,6 @@ class Playlist:
             The desired path of the xml file. If None, uses the value of
             the "playlist_path" config.
         """
-        if filepath is None:
-            filepath = get_config("playlist_path")
-
         root = etree.Element("nextsong")
 
         meta = etree.Element("meta")
@@ -341,7 +336,8 @@ class Playlist:
         root.append(elem)
 
         tree = etree.ElementTree(root)
-        tree.write(filepath, pretty_print=True)
+        with Config(playlist_path=filepath) as cfg:
+            tree.write(cfg.playlist_path, pretty_print=True)
 
     @staticmethod
     def load_xml(filepath=None):
@@ -356,9 +352,6 @@ class Playlist:
             The path to the xml file. If None, uses the value of the
             "playlist_path" config.
         """
-        if filepath is None:
-            filepath = get_config("playlist_path")
-
         def to_options(attributes):
             options = {}
             for key, val in attributes.items():
@@ -397,14 +390,15 @@ class Playlist:
             warnings.warn(f'unexpected tag "{elem.tag}"')
             return None
 
-        try:
-            tree = etree.parse(filepath)
-        except OSError:
-            # lxml.etree only raises a basic OSError. Try opening
-            # ourselves to trigger a more detailed error.
-            with open(filepath, "r"):
-                pass
-            raise
+        with Config(playlist_path=filepath) as cfg:
+            try:
+                tree = etree.parse(cfg.playlist_path)
+            except OSError:
+                # lxml.etree only raises a basic OSError. Try opening
+                # ourselves to trigger a more detailed error.
+                with open(cfg.playlist_path, "r"):
+                    pass
+                raise
         root = tree.getroot()
         if root.tag.lower() == "playlist":
             elem = root
@@ -439,20 +433,18 @@ def ensure_state(*, state_path=None, playlist_path=None, new_state=None):
         If True, forces the creation of a new PlaylistState from a
         Playlist. If None, uses the value of the "new_state" config.
     """
-    if new_state is None:
-        new_state = get_config("new_state")
+    with Config(state_path=state_path, playlist_path=playlist_path, new_state=new_state) as cfg:
+        state = None
 
-    state = None
+        if not cfg.new_state:
+            try:
+                return Playlist.load_state(cfg.state_path)
+            except FileNotFoundError:
+                pass
 
-    if not new_state:
-        try:
-            return Playlist.load_state(state_path)
-        except FileNotFoundError:
-            pass
+        if state is None:
+            playlist = Playlist.load_xml(cfg.playlist_path)
+            state = iter(playlist)
+            state.save(cfg.state_path)
 
-    if state is None:
-        playlist = Playlist.load_xml(playlist_path)
-        state = iter(playlist)
-        state.save(state_path)
-
-    return state
+        return state

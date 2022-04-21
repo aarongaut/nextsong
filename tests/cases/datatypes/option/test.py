@@ -9,3 +9,4 @@ assert TestOption.cast(TestOption.foo) == TestOption.foo
 assert TestOption.cast('foo') == TestOption.foo
 assert TestOption.cast('fOo') == TestOption.foo
 assert TestOption.cast('bar') == TestOption.bAr
+assert TestOption.choices() == ["foo", "bar"]
