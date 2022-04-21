@@ -29,4 +29,4 @@ class Option(Enum):
 class OnChange(Option):
     IGNORE = auto()
     RESTART = auto()
-    #MERGE = auto()
+    # MERGE = auto()

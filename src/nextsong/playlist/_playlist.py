@@ -352,6 +352,7 @@ class Playlist:
             The path to the xml file. If None, uses the value of the
             "playlist_path" config.
         """
+
         def to_options(attributes):
             options = {}
             for key, val in attributes.items():
@@ -433,7 +434,9 @@ def ensure_state(*, state_path=None, playlist_path=None, new_state=None):
         If True, forces the creation of a new PlaylistState from a
         Playlist. If None, uses the value of the "new_state" config.
     """
-    with Config(state_path=state_path, playlist_path=playlist_path, new_state=new_state) as cfg:
+    with Config(
+        state_path=state_path, playlist_path=playlist_path, new_state=new_state
+    ) as cfg:
         state = None
 
         if not cfg.new_state:

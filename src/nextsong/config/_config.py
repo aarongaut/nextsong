@@ -86,11 +86,15 @@ class Config:
         keyword arguments are specific config values.
 
         """
-        
-        object.__setattr__(self, '_Config__config', {
-            "priority": priority,
-            "values": _parse_config(values),
-        })
+
+        object.__setattr__(
+            self,
+            "_Config__config",
+            {
+                "priority": priority,
+                "values": _parse_config(values),
+            },
+        )
 
     def __getitem__(self, key):
         return get(key)
