@@ -1,14 +1,14 @@
-from nextsong.datatypes._datatypes import Option
+from nextsong.datatypes._datatypes import OptionEnum
 from enum import auto
 
 
-class TestOption(Option):
+class Test(OptionEnum):
     foo = auto()
     bAr = auto()
 
 
-assert TestOption.cast(TestOption.foo) == TestOption.foo
-assert TestOption.cast("foo") == TestOption.foo
-assert TestOption.cast("fOo") == TestOption.foo
-assert TestOption.cast("bar") == TestOption.bAr
-assert TestOption.choices() == ["foo", "bar"]
+assert Test.cast(Test.foo) == Test.foo
+assert Test.cast("foo") == Test.foo
+assert Test.cast("fOo") == Test.foo
+assert Test.cast("bar") == Test.bAr
+assert Test.choices() == ["foo", "bar"]

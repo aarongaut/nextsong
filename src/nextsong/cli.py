@@ -3,6 +3,7 @@ import argparse
 
 from nextsong.config import get as get_cfg
 from nextsong import ensure_state
+from nextsong.datatypes import OnChange
 import nextsong as nextsong_pkg
 
 
@@ -51,14 +52,22 @@ def nextsong():
         help="start playlist over, ignoring existing state file [%(default)s]",
         default=get_cfg("new_state"),
     )
+    parser.add_argument(
+        "-c",
+        "--on-change",
+        choices=OnChange.choices(),
+        help="behavior if playlist has changed since last call [%(default)s]",
+        default=get_cfg("on_change"),
+    )
     args = parser.parse_args()
 
     with nextsong_pkg.config.Config(
         media_root=args.media_root,
-        media_exts=args.media_ext or None,
+        media_exts=args.media_ext,
         playlist_path=args.playlist,
         state_path=args.state,
         new_state=args.new_state,
+        on_change=args.on_change,
     ):
         with ensure_state() as state:
             try:
