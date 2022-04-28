@@ -1,2 +1,2 @@
-media_root: ./media
+media_root: ./media/
 media_exts: []

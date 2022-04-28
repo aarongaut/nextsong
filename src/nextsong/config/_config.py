@@ -31,7 +31,7 @@ def _parse_config(config):
 default_config = {
     "priority": 0,
     "values": {
-        "media_root": "./media",
+        "media_root": "./media/",
         "media_exts": [],
         "playlist_path": "./nextsong.xml",
         "state_path": "./state.pickle",
