@@ -428,40 +428,35 @@ class Playlist:
     load_state = PlaylistState.load
 
 
-def ensure_state(*, state_path=None, playlist_path=None, new_state=None):
+def ensure_state(
+    *, state_path=None, playlist_path=None, new_state=None, on_change=None
+):
     """Loads a Playlist.PlaylistState or creates a new one
 
     This function will either load an existing PlaylistState from the
     filesystem, or if it doesn't exist, load a Playlist from the
     filesystem and use it to create a new PlaylistState.
 
-    Arguments
-    ---------
-    state_path: str or None
-        The path to the PlaylistState pickle file. If None, uses the
-        value of the "state_path" config.
-    playlist_path: str or None
-        The path to the playlist xml file. This is used to create the
-        PlaylistState if the pickle file doesn't already exist. If None,
-        uses the value of the "playlist_path" config.
-    new_state: bool or None
-        If True, forces the creation of a new PlaylistState from a
-        Playlist. If None, uses the value of the "new_state" config.
+    Keyword arguments may be set to override config values of the same
+    name. See the nextsong.config docs for more information.
     """
     with Config(
-        state_path=state_path, playlist_path=playlist_path, new_state=new_state
+        state_path=state_path,
+        playlist_path=playlist_path,
+        new_state=new_state,
+        on_change=on_change,
     ) as cfg:
         state = None
 
         if not cfg.new_state:
             try:
-                return Playlist.load_state(cfg.state_path)
+                return Playlist.load_state()
             except FileNotFoundError:
                 pass
 
         if state is None:
-            playlist = Playlist.load_xml(cfg.playlist_path)
+            playlist = Playlist.load_xml()
             state = iter(playlist)
-            state.save(cfg.state_path)
+            state.save()
 
         return state
