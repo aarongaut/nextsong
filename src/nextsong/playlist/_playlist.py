@@ -280,6 +280,20 @@ class Playlist:
     def __iter__(self):
         return self.PlaylistState(iter(self.__create_sequence()))
 
+    def manifest(self):
+        """List all files that appear in the playlist or a descendant
+
+        There are no guarantees about the order or uniqueness of values
+        in the returned list.
+        """
+        tracks = []
+        for child in self.children:
+            if isinstance(child, Playlist):
+                tracks.extend(child.manifest())
+            elif isinstance(child, str):
+                tracks.extend(self.__resolve_path(child))
+        return tracks
+
     def save_xml(self, filepath=None):
         """Save the Playlist to an xml file
 
