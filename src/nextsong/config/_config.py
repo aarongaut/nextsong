@@ -104,12 +104,18 @@ class Config:
         return get(key)
 
     def __setitem__(self, key, value):
+        if key in self.__config["values"] and value is None:
+            del self.__config["values"][key]
+            return
         self.__config["values"].update(_parse_config({key: value}))
 
     def __getattr__(self, key):
         return get(key)
 
     def __setattr__(self, key, value):
+        if key in self.__config["values"] and value is None:
+            del self.__config["values"][key]
+            return
         self.__config["values"].update(_parse_config({key: value}))
 
     def __enter__(self):
