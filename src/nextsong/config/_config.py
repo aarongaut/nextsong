@@ -14,7 +14,7 @@ def _parse_exts(exts):
     return [ext.lower().lstrip(".") for ext in exts]
 
 
-config_types = defaultdict(
+config_types: defaultdict = defaultdict(
     lambda: str,
     **{
         "new_state": bool,

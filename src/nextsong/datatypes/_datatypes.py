@@ -8,9 +8,12 @@ from enum import Enum, auto
 class OptionEnum(Enum):
     """Custom extension of Enum
 
-    Adds class methods to integrate better with command line options and
+    Adds methods to integrate better with command line options and
     environment variables.
     """
+
+    def __str__(self):
+        return self.name.lower()
 
     @classmethod
     def cast(cls, val):

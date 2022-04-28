@@ -6,7 +6,7 @@ from pathlib import Path
 import pickle
 import warnings
 
-from lxml import etree
+from lxml import etree  # type:ignore
 
 import nextsong.sequence as seq
 from nextsong.config import Config, get as get_cfg

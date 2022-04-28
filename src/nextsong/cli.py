@@ -49,7 +49,7 @@ def nextsong():
         "-n",
         "--new-state",
         action="store_true",
-        help="start playlist over, ignoring existing state file [%(default)s]",
+        help="force playlist to start over, ignoring existing state file",
         default=get_cfg("new_state"),
     )
     parser.add_argument(
