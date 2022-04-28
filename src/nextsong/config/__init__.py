@@ -24,9 +24,11 @@ new_state:
     should be recreated from scratch from the playlist. Defaults to
     False.
 on_change:
-    TBD
+    See nextsong.datatypes.OnChange for options and behavior.
 max_seek_skips:
-    TBD
+    When seeking through a playlist for a specific track, the maximum
+    number of tracks that will be skipped before giving up and issuing
+    a warning.
 
 Environment variables
 ---------------------
@@ -41,9 +43,10 @@ NEXTSONG_STATE_PATH:
 NEXTSONG_NEW_STATE:
     False if empty string, True if anything else; overrides new_state
 NEXTSONG_ON_CHANGE:
-    TBD
+    See nextsong.datatypes.OnChange for options and behavior; overrides
+    on_change
 NEXTSONG_MAX_SEEK_SKIPS:
-    TBD
+    Overrides max_seek_skips
 
 Details
 -------
