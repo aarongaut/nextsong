@@ -1,6 +1,6 @@
-/home/gaut/code/nextsong/tests/common/sample_media/1.mp3
-/home/gaut/code/nextsong/tests/common/sample_media/2.mp3
+1.mp3
+2.mp3
 Touching playlist; should restart
-/home/gaut/code/nextsong/tests/common/sample_media/1.mp3
+1.mp3
 Touching playlist; should restart again
-/home/gaut/code/nextsong/tests/common/sample_media/1.mp3
+1.mp3
