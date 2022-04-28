@@ -83,7 +83,8 @@ class Config:
         is only active for the duration of the 'with' block. The
         priority argument can be used to tune the overriding of other
         configs. See the module-level docstring for details. Other
-        keyword arguments are specific config values.
+        keyword arguments are specific config values. A value of None
+        is ignored rather than setting that config value to None.
 
         """
 
