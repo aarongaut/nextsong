@@ -280,16 +280,18 @@ class Playlist:
     def __iter__(self):
         return self.PlaylistState(iter(self.__create_sequence()))
 
-    def manifest(self):
-        """List all files that appear in the playlist or a descendant
+    def paths(self):
+        """List all filepaths that appear in the Playlist
 
-        There are no guarantees about the order or uniqueness of values
-        in the returned list.
+        This flattens the Playlist and any descendant Playlists and
+        resolves any glob patterns to get a flat list of all files
+        referenced by the Playlist. There are no guarantees about the
+        order or uniqueness of values in the returned list.
         """
         tracks = []
         for child in self.children:
             if isinstance(child, Playlist):
-                tracks.extend(child.manifest())
+                tracks.extend(child.paths())
             elif isinstance(child, str):
                 tracks.extend(self.__resolve_path(child))
         return tracks
