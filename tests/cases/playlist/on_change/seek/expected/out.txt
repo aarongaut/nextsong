@@ -1,0 +1,6 @@
+1.mp3
+2.mp3
+Copying over overlapping playlist; should continue
+3.mp3
+Touching playlist; should continue
+more_tracks/4.mp3

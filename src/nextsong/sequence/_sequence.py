@@ -6,6 +6,7 @@ __all__ = [
     "FiniteSequence",
     "OrderedLoopingSequence",
     "ShuffledLoopingSequence",
+    "WithPeek",
 ]
 
 from collections.abc import Iterable, Iterator
@@ -42,6 +43,25 @@ class AbstractSequence(Iterable):
 
         Used to prevent infinite loops
         """
+
+
+class WithPeek(Iterator):
+    """Wraps an iterator, adding a method to peek at the next item"""
+
+    def __init__(self, iterator):
+        self.__iterator = iterator
+        self.__next_item = []
+
+    def __next__(self):
+        if self.__next_item:
+            return self.__next_item.pop()
+        return next(self.__iterator)
+
+    def peek(self):
+        """Get the next item in the iterator without consuming it"""
+        if not self.__next_item:
+            self.__next_item.append(next(self.__iterator))
+        return self.__next_item[-1]
 
 
 class TrivialSequence(AbstractSequence):

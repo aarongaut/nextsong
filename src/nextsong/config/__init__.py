@@ -23,6 +23,10 @@ new_state:
     If True, an existing pickle file is ignored and playlist state
     should be recreated from scratch from the playlist. Defaults to
     False.
+on_change:
+    TBD
+max_seek_skips:
+    TBD
 
 Environment variables
 ---------------------
@@ -36,6 +40,10 @@ NEXTSONG_STATE_PATH:
     Overrides state_path config
 NEXTSONG_NEW_STATE:
     False if empty string, True if anything else; overrides new_state
+NEXTSONG_ON_CHANGE:
+    TBD
+NEXTSONG_MAX_SEEK_SKIPS:
+    TBD
 
 Details
 -------

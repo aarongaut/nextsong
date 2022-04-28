@@ -20,6 +20,7 @@ config_types: defaultdict = defaultdict(
         "new_state": bool,
         "media_exts": _parse_exts,
         "on_change": OnChange.cast,
+        "max_seek_skips": int,
     },
 )
 
@@ -37,6 +38,7 @@ default_config = {
         "state_path": "./state.pickle",
         "new_state": False,
         "on_change": OnChange.IGNORE,
+        "max_seek_skips": 1_000_000,
     },
 }
 
@@ -50,6 +52,7 @@ env_config = {
             "state_path": os.getenv("NEXTSONG_STATE_PATH", None),
             "new_state": os.getenv("NEXTSONG_NEW_STATE", None),
             "on_change": os.getenv("NEXTSONG_ON_CHANGE", None),
+            "max_seek_skips": os.getenv("NEXTSONG_MAX_SEEK_SKIPS", None),
         }
     ),
 }

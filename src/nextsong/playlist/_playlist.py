@@ -44,7 +44,7 @@ class Playlist:
             Users should instead call Playlist.__iter__ or
             Playlist.load_state to create a PlaylistState.
             """
-            self.__iterator = iterator
+            self.__iterator = seq.WithPeek(iterator)
             self.__from_path = from_path
             self.creation_time = time.time()
 
@@ -63,6 +63,10 @@ class Playlist:
             with Config(state_path=filepath) as cfg:
                 with open(cfg.state_path, "wb") as file:
                     return pickle.dump(self, file)
+
+        def peek(self):
+            """Peek at the next track without consuming it"""
+            return self.__iterator.peek()
 
         def __enter__(self):
             return self
@@ -434,6 +438,44 @@ class Playlist:
     load_state = PlaylistState.load
 
 
+def _handle_playlist_change(state):
+    with Config() as cfg:
+        if cfg.on_change == OnChange.IGNORE:
+            state.creation_time = time.time()
+        elif cfg.on_change == OnChange.RESTART:
+            playlist = Playlist.load_xml()
+            state = iter(playlist)
+            state.save()
+        elif cfg.on_change == OnChange.SEEK:
+            playlist = Playlist.load_xml()
+            try:
+                next_track = next(state)
+            except StopIteration:
+                next_track = None
+            state = iter(playlist)
+            if next_track in playlist.paths():
+                # We've confirmed the next track should appear in the
+                # new playlist, but it's possible the track is very
+                # unlikely or even impossible to actually be reached,
+                # so there is a cap on the number of skips to avoid
+                # an infinite loop.
+                for _ in range(cfg.max_seek_skips):
+                    if state.peek() == next_track:
+                        break
+                    try:
+                        next(state)
+                    except StopIteration:
+                        break
+                else:
+                    warnings.warn(
+                        "Gave up seeking to next track in new "
+                        f"playlist after {cfg.max_seek_skips} attempts"
+                    )
+        else:
+            raise NotImplementedError
+    return state
+
+
 def ensure_state(
     *, state_path=None, playlist_path=None, new_state=None, on_change=None
 ):
@@ -472,16 +514,9 @@ def ensure_state(
                 ]
                 warnings.warn("\n".join(lines))
             if state.creation_time < playlist_mtime:
-                if cfg.on_change == OnChange.IGNORE:
-                    pass
-                elif cfg.on_change == OnChange.RESTART:
-                    playlist = Playlist.load_xml()
-                    state = iter(playlist)
-                    state.save()
-                else:
-                    raise NotImplementedError
-
-        if state is None:
+                state = _handle_playlist_change(state)
+                state.save()
+        else:
             playlist = Playlist.load_xml()
             state = iter(playlist)
             state.save()

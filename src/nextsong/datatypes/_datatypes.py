@@ -43,10 +43,18 @@ class OptionEnum(Enum):
 class OnChange(OptionEnum):
     """What happens to the playlist state if the playlist has changed
 
-    IGNORE: continue playing with the old playlist
-    RESTART: discard state and start over with the new playlist
+    IGNORE:
+        Continue playing with the old playlist.
+    RESTART:
+        Start over with the new playlist.
+    SEEK:
+        Start over with the new playlist and skip tracks until what
+        would have been the next track in the old playlist. If this
+        isn't possible because the track doesn't appear in the new
+        playlist, fall back to behavior for RESTART.
     """
 
     IGNORE = auto()
     RESTART = auto()
+    SEEK = auto()
     # MERGE = auto()
