@@ -12,9 +12,11 @@ sequence:
     low level iterator classes
 sample:
     low level random sampling routines
+datatypes:
+    low level data only classes and enums
 """
 
-__version__ = "1.1.2.dev0"
+__version__ = "1.2.0"
 
 from . import config
 from . import datatypes
