@@ -5,11 +5,14 @@ __all__ = ["Playlist", "ensure_state"]
 from pathlib import Path
 import pickle
 import warnings
+import time
+import os
 
 from lxml import etree  # type:ignore
 
 import nextsong.sequence as seq
 from nextsong.config import Config, get as get_cfg
+from nextsong.datatypes import OnChange
 
 
 class Playlist:
@@ -43,6 +46,7 @@ class Playlist:
             """
             self.__iterator = iterator
             self.__from_path = from_path
+            self.creation_time = time.time()
 
         def __next__(self):
             return next(self.__iterator)
@@ -286,7 +290,7 @@ class Playlist:
         This flattens the Playlist and any descendant Playlists and
         resolves any glob patterns to get a flat list of all files
         referenced by the Playlist. There are no guarantees about the
-        order or uniqueness of values in the returned list.
+        order or uniqueness of the listed values.
         """
         tracks = []
         for child in self.children:
@@ -452,9 +456,30 @@ def ensure_state(
 
         if not cfg.new_state:
             try:
-                return Playlist.load_state()
+                state = Playlist.load_state()
             except FileNotFoundError:
                 pass
+
+        if state:
+            playlist_mtime = -1
+            try:
+                playlist_mtime = os.path.getmtime(cfg.playlist_path)
+            except OSError as err:
+                lines = [
+                    "Failed to fetch playlist modified time with error:",
+                    f"\t{err}",
+                    "Change detection will be skipped",
+                ]
+                warnings.warn("\n".join(lines))
+            if state.creation_time < playlist_mtime:
+                if cfg.on_change == OnChange.IGNORE:
+                    pass
+                elif cfg.on_change == OnChange.RESTART:
+                    playlist = Playlist.load_xml()
+                    state = iter(playlist)
+                    state.save()
+                else:
+                    raise NotImplementedError
 
         if state is None:
             playlist = Playlist.load_xml()
