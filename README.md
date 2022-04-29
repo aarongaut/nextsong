@@ -50,9 +50,44 @@ $ nextsong
 /home/myusername/media/music/artist1/album1/02_foobar.mp3
 ```
 
-The `nextsong` command will print the absolute path of the next track to standard output or print an empty line once the end of the playlist has been reached. In this example, the playlist is set to loop, so it will never end. The state of iteration through the playlist is maintained in a pickle file named `state.pickle`. Note that changes to the playlist XML file will only take effect by deleting this pickle file.
+The `nextsong` command will print the absolute path of the next track to standard output or print an empty line once the end of the playlist has been reached. In this example, the playlist is set to loop, so it will never end. The state of iteration through the playlist is maintained in a pickle file named `state.pickle`.
 
-The filepaths in this example and other options such as the root media directory can be configured within the Python script or via environment variables.
+## Configuration
+
+The filepaths in the above example and other configuration options such as the root media directory can be changed from environment variables, command line arguments, and in scripts using the `nextsong.config.Config` class. For example
+
+```python
+from nextsong.config import Config
+from nextsong import Playlist
+
+with Config(playlist_path="my_playlist.xml") as cfg:
+    # prints "my_playlist.xml"
+    print(cfg.playlist_path)
+    # prints "./media/" (the default)
+    print(cfg.media_root)
+    # saves to "my_playlist.xml"
+    Playlist("my_favorite_song.mp3").save_xml()
+```
+
+In the above example we create a `Config` object to override the `playlist_path` config. This override is in effect until the end of the `with` block. Config values can be accessed as attributes of the `Config` object. If the `Config` object doesn't override a value, the value will be taken lower priority configs such as defaults and environment variables. This is seen when accessing `media_root`. Note that while the config value for `playlist_path` isn't explicitly passed down to `save_xml`, it still determines the XML file's path. It is never necessary to pass a `Config` object into a function to have effect - just invoke the function inside the `Config`'s `with` block.
+
+See the `nextsong.config` module's docstring for a comprehensive overview of supported config options, their behaviors, and corresponding environment variables. Run
+
+```python
+import nextsong; help(nextsong.config)
+```
+
+## Handling playlist updates
+
+By default the state of iteration through a playlist, saved in `state.pickle`, is based on a snapshot of the playlist at the moment the iteration began. A new state must be created (such as by deleting the `state.pickle` file) for playlist changes to take effect. This behavior can be changed by setting the `on_change` config. Currently the options are:
+
+|`on_change` choice|Behavior|
+|:-|:-|
+|`ignore`|Continue based on the old playlist. This is the default behavior.|
+|`restart`|Start over at the beginning of the new playlist.|
+|`seek`|Start over with the new playlist, and seek to what would have been the next track in the old playlist. If this isn't possible for some reason, emit a warning and fall back to the `restart` behavior.|
+
+_Note: playlist change detection is based on the playlist file's last modified time. This is a simple 'good enough' solution but has some pitfalls. See [mtime comparison considered harmful](https://apenwarr.ca/log/20181113) for a good overview._
 
 ## Ezstream integration
 
