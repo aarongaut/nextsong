@@ -69,7 +69,7 @@ with Config(playlist_path="my_playlist.xml") as cfg:
     Playlist("my_favorite_song.mp3").save_xml()
 ```
 
-In the above example we create a `Config` object to override the `playlist_path` config. This override is in effect until the end of the `with` block. Config values can be accessed as attributes of the `Config` object. If the `Config` object doesn't override a value, the value will be taken lower priority configs such as defaults and environment variables. This is seen when accessing `media_root`. Note that while the config value for `playlist_path` isn't explicitly passed down to `save_xml`, it still determines the XML file's path. It is never necessary to pass a `Config` object into a function to have effect - just invoke the function inside the `Config`'s `with` block.
+In the above example we create a `Config` object to override the `playlist_path` config. This override is in effect until the end of the `with` block. Config values can be accessed as attributes of the `Config` object. If the `Config` object doesn't override a value, the value is sourced from lower priority configs such as defaults and environment variables. This is seen when accessing `media_root`. Note that while the config value for `playlist_path` isn't explicitly passed down to `save_xml`, it still determines the XML file's path. It is never necessary to pass a `Config` object into a function to have effect - just invoke the function inside the `Config`'s `with` block.
 
 See the `nextsong.config` module's docstring for a comprehensive overview of supported config options, their behaviors, and corresponding environment variables. Run
 
