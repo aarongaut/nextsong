@@ -361,7 +361,8 @@ class Playlist:
 
         tree = etree.ElementTree(root)
         with Config(playlist_path=filepath) as cfg:
-            tree.write(cfg.playlist_path, pretty_print=True)
+            with open(cfg.playlist_path, "wb") as file:
+                tree.write(file, pretty_print=True)
 
     @staticmethod
     def load_xml(filepath=None):
@@ -471,6 +472,9 @@ def _handle_playlist_change(state):
                         "Gave up seeking to next track in new "
                         f"playlist after {cfg.max_seek_skips} attempts"
                     )
+            else:
+                warnings.warn(
+                    "Next track not in new playlist. Starting over.")
         else:
             raise NotImplementedError
     return state
