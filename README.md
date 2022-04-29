@@ -73,8 +73,8 @@ In the above example we create a `Config` object to override the `playlist_path`
 
 See the `nextsong.config` module's docstring for a comprehensive overview of supported config options, their behaviors, and corresponding environment variables. Run
 
-```python
-import nextsong; help(nextsong.config)
+```sh
+$ python -c "import nextsong; help(nextsong.config)"
 ```
 
 ## Handling playlist updates
