@@ -1,10 +1,10 @@
-`nextsong` is a library and command line executable to support creating media playlists with a complex nested structure.
+`nextsong` is a library and command line executable to create and sample from media playlists with a complex nested structure.
 
 _Note: This project is theoretically platform agnostic, but isn't tested outside of Linux. If you encounter a problem using it on another platform please feel free to open an issue._
 
 # Features
 
-- Recursive tree-based structure, where each item in the playlist is itself a playlist with various options for sampling songs
+- Nested playlists, where each item in the playlist can itself be a playlist with various options for sampling songs
 - XML format to save and load playlists
 - Command-line executable to get the next song in the playlist
 - [ezstream](https://icecast.org/ezstream/) integration
@@ -89,7 +89,7 @@ By default the state of iteration through a playlist, saved in `state.pickle`, i
 
 _Note: playlist change detection is based on the playlist file's last modified time. This is a simple 'good enough' solution but has some pitfalls. See [mtime comparison considered harmful](https://apenwarr.ca/log/20181113) for a good overview._
 
-## Ezstream integration
+## [Ezstream](https://icecast.org/ezstream/) integration
 
 First create the playlist XML file using this package as described above.
 
