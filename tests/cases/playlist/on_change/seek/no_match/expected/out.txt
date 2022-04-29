@@ -1,0 +1,2 @@
+Got expected warning: Next track not in new playlist. Starting over.
+Got expected warning: Gave up seeking to next track in new playlist after 100 attempts
