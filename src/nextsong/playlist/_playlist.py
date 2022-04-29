@@ -466,12 +466,14 @@ def _handle_playlist_change(state):
                     try:
                         next(state)
                     except StopIteration:
+                        state = iter(playlist)
                         break
                 else:
                     warnings.warn(
                         "Gave up seeking to next track in new "
                         f"playlist after {cfg.max_seek_skips} attempts"
                     )
+                    state = iter(playlist)
             else:
                 warnings.warn("Next track not in new playlist. Starting over.")
         else:
