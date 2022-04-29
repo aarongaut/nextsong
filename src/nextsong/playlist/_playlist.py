@@ -473,8 +473,7 @@ def _handle_playlist_change(state):
                         f"playlist after {cfg.max_seek_skips} attempts"
                     )
             else:
-                warnings.warn(
-                    "Next track not in new playlist. Starting over.")
+                warnings.warn("Next track not in new playlist. Starting over.")
         else:
             raise NotImplementedError
     return state
