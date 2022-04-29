@@ -16,7 +16,7 @@ datatypes:
     low level data only classes and enums
 """
 
-__version__ = "1.2.1"
+__version__ = "1.2.2.dev0"
 
 from . import config
 from . import datatypes
