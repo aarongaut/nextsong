@@ -38,5 +38,5 @@ dist: $(shell find src) LICENSE pyproject.toml README.md setup.cfg
 	rm -f dist/*
 	python3 -m build
 
-tags: $(shell find src)
-	ctags $(shell find src/nextsong -iname "*.py")
+tags: $(shell find src/nextsong -iname "*.py")
+	ctags $^
