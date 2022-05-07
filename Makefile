@@ -15,6 +15,7 @@ publish: test dist
 clean:
 	rm -rf dist
 	rm -rf src/*.egg-info
+	rm -f tags
 	find src -name __pycache__ -type d -prune -exec rm -r {} ';'
 	find tests -name __pycache__ -type d -prune -exec rm -r {} ';'
 	find tests -name artifacts -type d -prune -exec rm -r {} ';'
@@ -37,3 +38,5 @@ dist: $(shell find src) LICENSE pyproject.toml README.md setup.cfg
 	rm -f dist/*
 	python3 -m build
 
+tags: $(shell find src)
+	ctags $(shell find src/nextsong -iname "*.py")

@@ -6,3 +6,4 @@ __pycache__
 dist
 tests/cases/examples/**/nextsong.xml
 tests/cases/examples/**/state.pickle
+tags
