@@ -422,7 +422,7 @@ class Playlist:
             except OSError:
                 # lxml.etree only raises a basic OSError. Try opening
                 # ourselves to trigger a more detailed error.
-                with open(cfg.playlist_path, "r"):
+                with open(cfg.playlist_path, "r", encoding="utf-8"):
                     pass
                 raise
         root = tree.getroot()
