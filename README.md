@@ -7,7 +7,7 @@ _Note: This project is theoretically platform agnostic, but isn't tested outside
 - Nested playlists, where each item in the playlist can itself be a playlist with various options for sampling songs
 - XML format to save and load playlists
 - Command-line executable to get the next song in the playlist
-- [ezstream](https://icecast.org/ezstream/) integration
+- [ezstream](https://icecast.org/ezstream/) and [liquidsoap](https://www.liquidsoap.info/) integration
 
 # Usage
 
@@ -111,6 +111,22 @@ $ NEXTSONG_MEDIA_ROOT=~/music ezstream -c ~/ezstream.xml
 ```
 
 Details on config values and their corresponding environment variables can be found in the `nextsong.config` docstring, which can be viewed in the Python interpreter by calling `help(nextsong.config)`.
+
+## [Liquidsoap](https://www.liquidsoap.info/) integration
+
+First create the playlist XML file using this package as described above.
+
+To use `nextsong` in liquidsoap, create a dynamic source that invokes the nextsong CLI (as of liquidsoap 2.1.3):
+
+```
+def request_func() =
+  result =
+    list.hd(default="", process.read.lines("nextsong"))
+  [request.create(result)]
+end
+
+source = request.dynamic.list(request_func)
+```
 
 ## Local playback example with vlc
 
